@@ -1,11 +1,12 @@
 import { inngest } from "@/lib/inngest/client"
 import { supabaseServer } from "@/lib/supabase/server"
 import { generateSql, refineSqlWithFeedback } from "@/lib/anthropic/generate-sql"
-import { generateMasterCopy, generatePersonalization } from "@/lib/anthropic/generate-copy"
+import { generateMasterCopy } from "@/lib/anthropic/generate-copy"
 import { runQuery } from "@/lib/bigquery/client"
-import { submitBulkEmailFinder, getBulkJobStatus, getBulkJobResults } from "@/lib/leadmagic/client"
-import { pushLeadsToInstantly } from "@/lib/instantly/client"
-import type { CampaignBrief, SqlVersion, Lead } from "@/types"
+import { enrichBatch, extractLeadForEnrichment } from "@/lib/leadmagic/client"
+import type { CampaignBrief, SqlVersion } from "@/types"
+
+const ENRICH_BATCH_SIZE = 50 // leads per Inngest step (at 5 RPS ≈ 11 seconds)
 
 async function updateCampaign(
   campaignId: string,
@@ -55,7 +56,7 @@ export const runCampaign = inngest.createFunction(
         return await runQuery(sqlResult.sql, { limit: 25 })
       })
 
-      // Run excluded sample query (best-effort — don't fail the whole flow)
+      // Run excluded sample query (best-effort)
       const excludedResult = await step.run("run-bq-excluded-sample", async () => {
         if (!sqlResult.excluded_sql) return { rows: [], totalRows: 0 }
         try {
@@ -65,7 +66,7 @@ export const runCampaign = inngest.createFunction(
         }
       })
 
-      // Save SQL version with criteria + excluded samples
+      // Save SQL version
       const newVersion: SqlVersion = {
         sql: sqlResult.sql,
         reasoning: sqlResult.reasoning,
@@ -101,7 +102,6 @@ export const runCampaign = inngest.createFunction(
       if (review.data.action === "approve") {
         sqlApproved = true
       } else {
-        // Refine with feedback
         const refined = await step.run("refine-sql", async () => {
           return await refineSqlWithFeedback(
             brief,
@@ -110,14 +110,10 @@ export const runCampaign = inngest.createFunction(
           )
         })
 
-        const refinedQueryResult = await step.run(
-          "run-refined-bq",
-          async () => {
-            return await runQuery(refined.sql, { limit: 25 })
-          }
-        )
+        const refinedQueryResult = await step.run("run-refined-bq", async () => {
+          return await runQuery(refined.sql, { limit: 25 })
+        })
 
-        // Run excluded sample for refined query
         const refinedExcluded = await step.run("run-refined-excluded", async () => {
           if (!refined.excluded_sql) return { rows: [], totalRows: 0 }
           try {
@@ -187,28 +183,154 @@ export const runCampaign = inngest.createFunction(
     })
 
     // =========================================================================
-    // PHASE 3: Enrichment (LeadMagic)
+    // PHASE 3: Enrichment (LeadMagic email finder)
     // =========================================================================
-    // TODO: Wire in when LeadMagic key is available
-    // For now, skip enrichment and move to copy generation
+    // Uses only existing DB columns: leads.email, leads.email_status
+    // Logs to debug_log for audit trail
+
+    // Fetch all leads for this campaign that need enrichment
+    const allLeads = await step.run("fetch-leads-for-enrichment", async () => {
+      const { data } = await db
+        .from("leads")
+        .select("id, source_data")
+        .eq("campaign_id", campaignId)
+        .is("email", null)
+        .order("created_at", { ascending: true })
+      return data ?? []
+    })
+
+    // Process in batches of ENRICH_BATCH_SIZE (at 5 RPS, 50 leads ≈ 11s)
+    let enrichedTotal = 0
+    let validTotal = 0
+    let creditsUsed = 0
+    const totalBatches = Math.ceil(allLeads.length / ENRICH_BATCH_SIZE)
+
+    for (let batchIdx = 0; batchIdx < totalBatches; batchIdx++) {
+      const batchStart = batchIdx * ENRICH_BATCH_SIZE
+      const batchLeads = allLeads.slice(batchStart, batchStart + ENRICH_BATCH_SIZE)
+
+      const batchResult = await step.run(
+        `enrich-batch-${batchIdx}`,
+        async () => {
+          // Extract enrichment requests from lead source data
+          const requests = batchLeads.map((lead) => ({
+            leadId: lead.id as string,
+            request: extractLeadForEnrichment(
+              lead.source_data as Record<string, unknown>
+            ),
+          }))
+
+          // Filter: only enrich leads we have name + company for
+          const enrichable = requests.filter((r) => r.request !== null)
+
+          if (enrichable.length === 0) {
+            return { enriched: 0, valid: 0, credits: 0 }
+          }
+
+          // Call LeadMagic with rate limiting
+          const results = await enrichBatch(
+            enrichable.map((e) => e.request!)
+          )
+
+          // Update each lead in Supabase (uses existing columns only)
+          let batchEnriched = 0
+          let batchValid = 0
+          let batchCredits = 0
+
+          for (let i = 0; i < enrichable.length; i++) {
+            const leadId = enrichable[i].leadId
+            const result = results[i]
+
+            // Update lead with found email (or leave null)
+            if (result.email) {
+              await db
+                .from("leads")
+                .update({
+                  email: result.email,
+                  email_status: result.email_status ?? "unknown",
+                })
+                .eq("id", leadId)
+
+              batchEnriched++
+              if (result.email_status === "valid") batchValid++
+            }
+
+            batchCredits += result.credits_used
+
+            // Log to debug_log for audit trail
+            await db.from("debug_log").insert({
+              campaign_id: campaignId,
+              step: "leadmagic_enrich",
+              prompt: JSON.stringify(enrichable[i].request),
+              response: JSON.stringify(result.raw),
+              model: "leadmagic/email-finder",
+              tokens_in: 0,
+              tokens_out: 0,
+            })
+          }
+
+          return {
+            enriched: batchEnriched,
+            valid: batchValid,
+            credits: batchCredits,
+          }
+        }
+      )
+
+      enrichedTotal += batchResult.enriched
+      validTotal += batchResult.valid
+      creditsUsed += batchResult.credits
+
+      // Update campaign progress after each batch
+      await step.run(`update-enrich-progress-${batchIdx}`, async () => {
+        await updateCampaign(campaignId, {
+          enriched_count: enrichedTotal,
+          valid_count: validTotal,
+        })
+      })
+    }
+
+    // Log enrichment summary
+    await step.run("finalize-enrichment", async () => {
+      await updateCampaign(campaignId, {
+        enriched_count: enrichedTotal,
+        valid_count: validTotal,
+      })
+
+      await db.from("debug_log").insert({
+        campaign_id: campaignId,
+        step: "enrichment_complete",
+        prompt: `${allLeads.length} leads processed`,
+        response: JSON.stringify({
+          total: allLeads.length,
+          enriched: enrichedTotal,
+          valid: validTotal,
+          credits_used: creditsUsed,
+        }),
+        model: "leadmagic/email-finder",
+      })
+    })
 
     // =========================================================================
     // PHASE 4: Copy Generation + Review
     // =========================================================================
-    const { data: leads } = await step.run("fetch-leads", async () => {
+
+    // Fetch sample of enriched leads for copy generation
+    const { data: sampleLeads } = await step.run("fetch-sample-leads", async () => {
       const { data } = await db
         .from("leads")
         .select("*")
         .eq("campaign_id", campaignId)
+        .not("email", "is", null)
         .limit(5)
       return { data }
     })
 
     const masterCopy = await step.run("generate-master-copy", async () => {
-      const sampleLeads = (leads ?? []).map(
-        (l: Lead) => l.source_data
+      const samples = (sampleLeads ?? []).map(
+        (l: { source_data: Record<string, unknown> }) => l.source_data
       )
-      return await generateMasterCopy(brief, sampleLeads)
+      return await generateMasterCopy(brief, samples)
     })
 
     await step.run("save-master-copy", async () => {
@@ -247,6 +369,11 @@ export const runCampaign = inngest.createFunction(
       })
     })
 
-    return { status: "completed", campaignId }
+    return {
+      status: "completed",
+      campaignId,
+      enriched: enrichedTotal,
+      valid: validTotal,
+    }
   }
 )
