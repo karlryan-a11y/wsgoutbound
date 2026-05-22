@@ -2,14 +2,27 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { supabaseServer } from "@/lib/supabase/server"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import type { Campaign } from "@/types"
+import type { Campaign, CampaignStatus } from "@/types"
+import { RefreshButton } from "@/components/campaign/refresh-button"
 import { SqlReview } from "@/components/campaign/sql-review"
 import { VolumePicker } from "@/components/campaign/volume-picker"
 import { CopyReview } from "@/components/campaign/copy-review"
 import { PushStatus } from "@/components/campaign/push-status"
 
 export const dynamic = "force-dynamic"
+
+const statusStyles: Record<CampaignStatus, string> = {
+  draft: "border-[#9A8A8C]/30 text-[#9A8A8C]",
+  awaiting_sql_review: "border-[#BE7B44]/30 text-[#BE7B44]",
+  querying: "border-[#7FB5CB]/30 text-[#7FB5CB]",
+  awaiting_volume: "border-[#BE7B44]/30 text-[#BE7B44]",
+  enriching: "border-[#7FB5CB]/30 text-[#7FB5CB]",
+  awaiting_copy_review: "border-[#BE7B44]/30 text-[#BE7B44]",
+  pushing: "border-[#7FB5CB]/30 text-[#7FB5CB]",
+  completed: "border-[#2D500D]/30 text-[#5A9A2F]",
+  failed: "border-[#C30319]/30 text-[#C30319]",
+  cancelled: "border-[#9A8A8C]/30 text-[#9A8A8C]",
+}
 
 export default async function CampaignDetailPage({
   params,
@@ -30,61 +43,54 @@ export default async function CampaignDetailPage({
   const c = campaign as Campaign
 
   return (
-    <div className="container max-w-4xl py-8">
+    <div className="container max-w-4xl py-10">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <Link
             href="/"
-            className="mb-2 block text-sm text-muted-foreground hover:text-foreground"
+            className="mb-2 block text-sm text-muted-foreground/60 transition-colors hover:text-foreground"
           >
             &larr; Back to campaigns
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight">{c.name}</h1>
-          <p className="text-sm text-muted-foreground">{c.brief.persona}</p>
+          <h1 className="text-3xl tracking-tight">{c.name}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{c.brief.persona}</p>
         </div>
-        <Badge variant="outline" className="text-sm">
+        <Badge
+          variant="outline"
+          className={`text-sm ${statusStyles[c.status]}`}
+        >
           {c.status.replace(/_/g, " ")}
         </Badge>
       </div>
 
       {/* Render stage component based on status */}
-      {c.status === "awaiting_sql_review" && (
-        <SqlReview campaign={c} />
-      )}
+      {c.status === "awaiting_sql_review" && <SqlReview campaign={c} />}
 
-      {c.status === "awaiting_volume" && (
-        <VolumePicker campaign={c} />
-      )}
+      {c.status === "awaiting_volume" && <VolumePicker campaign={c} />}
 
-      {c.status === "awaiting_copy_review" && (
-        <CopyReview campaign={c} />
-      )}
+      {c.status === "awaiting_copy_review" && <CopyReview campaign={c} />}
 
       {(c.status === "pushing" || c.status === "completed") && (
         <PushStatus campaign={c} />
       )}
 
-      {(c.status === "draft" || c.status === "querying" || c.status === "enriching") && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-zinc-700 py-16">
-          <div className="mb-2 text-4xl">&#9881;</div>
-          <p className="text-lg text-muted-foreground">
-            Processing — {c.status.replace(/_/g, " ")}...
+      {(c.status === "draft" ||
+        c.status === "querying" ||
+        c.status === "enriching") && (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-20">
+          <div className="mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#BE7B44]/20 border-t-[#BE7B44]" />
+          <p className="text-lg text-foreground/80">
+            {c.status.replace(/_/g, " ")}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
             This page will update when the next step is ready.
           </p>
-          <Button
-            variant="outline"
-            className="mt-4"
-            onClick={() => window.location.reload()}
-          >
-            Refresh
-          </Button>
+          <RefreshButton />
         </div>
       )}
 
       {(c.status === "failed" || c.status === "cancelled") && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-red-900 py-16">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#C30319]/20 py-20">
           <p className="text-lg text-muted-foreground">
             Campaign {c.status}
           </p>

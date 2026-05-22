@@ -1,7 +1,14 @@
 import type { Metadata } from "next"
-import { ClerkProvider } from "@clerk/nextjs"
+import { Inter } from "next/font/google"
 import { Toaster } from "@/components/ui/sonner"
+import { Providers } from "@/components/providers"
+import { Header } from "@/components/layout/header"
 import "./globals.css"
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+})
 
 export const metadata: Metadata = {
   title: "WSG Outbound",
@@ -14,15 +21,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en" className="dark">
-        <body className="min-h-screen bg-background font-sans antialiased">
-          <div className="relative flex min-h-screen flex-col">
+    <html lang="en" className={`dark ${inter.variable}`}>
+      <body className="min-h-screen bg-background font-sans antialiased">
+        <Providers>
+          <Header />
+          <main className="relative flex min-h-[calc(100vh-3.5rem)] flex-col">
             {children}
-          </div>
+          </main>
           <Toaster />
-        </body>
-      </html>
-    </ClerkProvider>
+        </Providers>
+      </body>
+    </html>
   )
 }

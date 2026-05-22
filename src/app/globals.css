@@ -4,12 +4,50 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* =========================================================================
+   WSG Brand Fonts
+   ========================================================================= */
+
+@font-face {
+  font-family: 'Schnyder';
+  src: url('/fonts/schnyder/Schnyder-MLight-Web.woff2') format('woff2'),
+       url('/fonts/schnyder/Schnyder-MLight-Web.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Schnyder Wide';
+  src: url('/fonts/schnyder/SchnyderWide-MLight-Web.woff2') format('woff2'),
+       url('/fonts/schnyder/SchnyderWide-MLight-Web.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* =========================================================================
+   WSG Brand Theme
+   ========================================================================= */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: 'Schnyder', 'Georgia', serif;
+  --font-display: 'Schnyder Wide', 'Georgia', serif;
+
+  /* WSG Brand Colors */
+  --color-wsg-black: #000000;
+  --color-wsg-white: #FFFFFF;
+  --color-wsg-blush: #F8E5E7;
+  --color-wsg-camel: #BE7B44;
+  --color-wsg-green: #2D500D;
+  --color-wsg-butter: #EDE8BE;
+  --color-wsg-red: #C30319;
+  --color-wsg-blue: #7FB5CB;
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,6 +86,7 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Light mode (unused but defined for completeness) */
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -55,66 +94,67 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: #BE7B44;
+  --primary-foreground: #FFFFFF;
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --accent: #F8E5E7;
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: #C30319;
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --ring: #BE7B44;
+  --chart-1: #BE7B44;
+  --chart-2: #7FB5CB;
+  --chart-3: #2D500D;
+  --chart-4: #EDE8BE;
+  --chart-5: #C30319;
+  --radius: 0.5rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-primary: #BE7B44;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F8E5E7;
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: #BE7B44;
 }
 
+/* Dark mode — WSG branded */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #0A0A0A;
+  --foreground: #F8E5E7;
+  --card: #141414;
+  --card-foreground: #F8E5E7;
+  --popover: #141414;
+  --popover-foreground: #F8E5E7;
+  --primary: #BE7B44;
+  --primary-foreground: #FFFFFF;
+  --secondary: #1E1E1E;
+  --secondary-foreground: #F8E5E7;
+  --muted: #1E1E1E;
+  --muted-foreground: #9A8A8C;
+  --accent: #1A1214;
+  --accent-foreground: #F8E5E7;
+  --destructive: #C30319;
+  --border: rgba(248, 229, 231, 0.08);
+  --input: rgba(248, 229, 231, 0.12);
+  --ring: #BE7B44;
+  --chart-1: #BE7B44;
+  --chart-2: #7FB5CB;
+  --chart-3: #2D500D;
+  --chart-4: #EDE8BE;
+  --chart-5: #C30319;
+  --sidebar: #141414;
+  --sidebar-foreground: #F8E5E7;
+  --sidebar-primary: #BE7B44;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #1A1214;
+  --sidebar-accent-foreground: #F8E5E7;
+  --sidebar-border: rgba(248, 229, 231, 0.08);
+  --sidebar-ring: #BE7B44;
 }
 
 @layer base {
@@ -126,5 +166,10 @@
   }
   html {
     @apply font-sans;
+  }
+  h1, h2, h3 {
+    font-family: 'Schnyder', 'Georgia', serif;
+    font-weight: 300;
+    letter-spacing: 0.01em;
   }
 }

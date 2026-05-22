@@ -4,7 +4,9 @@ let _client: Anthropic | null = null
 
 export function getAnthropicClient(): Anthropic {
   if (_client) return _client
-  _client = new Anthropic()
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY env var")
+  _client = new Anthropic({ apiKey })
   return _client
 }
 

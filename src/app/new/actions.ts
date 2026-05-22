@@ -61,10 +61,15 @@ export async function createCampaign(
     if (error) throw error
 
     // Fire Inngest event to start the campaign workflow
-    await inngest.send({
-      name: "campaign/submitted",
-      data: { campaignId: data.id },
-    })
+    try {
+      await inngest.send({
+        name: "campaign/submitted",
+        data: { campaignId: data.id },
+      })
+    } catch (inngestErr) {
+      console.error("Inngest event failed (is the dev server running?):", inngestErr)
+      // Still return success — campaign was created, workflow can be triggered later
+    }
 
     return { ok: true, campaignId: data.id }
   } catch (err) {
