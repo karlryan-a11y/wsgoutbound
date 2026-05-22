@@ -23,24 +23,25 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
   }
 
   return (
-    <Card>
+    <Card className="border-white/[0.06] bg-white/[0.02]">
       <CardHeader>
-        <CardTitle className="text-base">Select Volume to Enrich</CardTitle>
+        <CardTitle className="text-lg text-white">Select Volume to Enrich</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white/50">
             Total candidates from query:{" "}
-            <span className="font-medium text-foreground">
+            <span className="font-medium text-white">
               {maxCandidates.toLocaleString()}
             </span>
           </p>
         </div>
 
         <div>
-          <p className="mb-3 text-sm">
+          <p className="mb-3 text-sm text-white/70">
             Enrich{" "}
-            <span className="text-lg font-bold">{enrichCount}</span> leads
+            <span className="text-xl font-bold text-[#BE7B44]">{enrichCount}</span>{" "}
+            leads
           </p>
           <Slider
             value={[enrichCount]}
@@ -49,13 +50,17 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
             max={Math.min(maxCandidates, 1000)}
             step={10}
           />
-          <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+          <div className="mt-2 flex justify-between text-xs text-white/30">
             <span>10</span>
             <span>{Math.min(maxCandidates, 1000)}</span>
           </div>
         </div>
 
-        <Button onClick={handleSubmit} disabled={loading} className="w-full">
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full bg-[#BE7B44] text-white hover:bg-[#A86A37]"
+        >
           {loading
             ? "Starting enrichment..."
             : `Enrich ${enrichCount} leads`}

@@ -12,7 +12,7 @@ import { PushStatus } from "@/components/campaign/push-status"
 export const dynamic = "force-dynamic"
 
 const statusStyles: Record<CampaignStatus, string> = {
-  draft: "border-[#9A8A8C]/30 text-[#9A8A8C]",
+  draft: "border-white/20 text-white/50",
   awaiting_sql_review: "border-[#BE7B44]/30 text-[#BE7B44]",
   querying: "border-[#7FB5CB]/30 text-[#7FB5CB]",
   awaiting_volume: "border-[#BE7B44]/30 text-[#BE7B44]",
@@ -21,7 +21,20 @@ const statusStyles: Record<CampaignStatus, string> = {
   pushing: "border-[#7FB5CB]/30 text-[#7FB5CB]",
   completed: "border-[#2D500D]/30 text-[#5A9A2F]",
   failed: "border-[#C30319]/30 text-[#C30319]",
-  cancelled: "border-[#9A8A8C]/30 text-[#9A8A8C]",
+  cancelled: "border-white/20 text-white/50",
+}
+
+const statusLabels: Record<CampaignStatus, string> = {
+  draft: "Draft",
+  awaiting_sql_review: "Review Query",
+  querying: "Querying",
+  awaiting_volume: "Pick Volume",
+  enriching: "Enriching",
+  awaiting_copy_review: "Review Copy",
+  pushing: "Pushing",
+  completed: "Completed",
+  failed: "Failed",
+  cancelled: "Cancelled",
 }
 
 export default async function CampaignDetailPage({
@@ -48,18 +61,18 @@ export default async function CampaignDetailPage({
         <div>
           <Link
             href="/"
-            className="mb-2 block text-sm text-muted-foreground/60 transition-colors hover:text-foreground"
+            className="mb-2 block text-sm text-white/30 transition-colors hover:text-white"
           >
             &larr; Back to campaigns
           </Link>
-          <h1 className="text-3xl tracking-tight">{c.name}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{c.brief.persona}</p>
+          <h1 className="text-3xl tracking-tight text-white">{c.name}</h1>
+          <p className="mt-1 text-sm text-white/50">{c.brief.persona}</p>
         </div>
         <Badge
           variant="outline"
           className={`text-sm ${statusStyles[c.status]}`}
         >
-          {c.status.replace(/_/g, " ")}
+          {statusLabels[c.status]}
         </Badge>
       </div>
 
@@ -77,12 +90,12 @@ export default async function CampaignDetailPage({
       {(c.status === "draft" ||
         c.status === "querying" ||
         c.status === "enriching") && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-20">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#BE7B44]/15 py-20">
           <div className="mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#BE7B44]/20 border-t-[#BE7B44]" />
-          <p className="text-lg text-foreground/80">
-            {c.status.replace(/_/g, " ")}
+          <p className="text-lg text-white/80">
+            {statusLabels[c.status]}
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-white/40">
             This page will update when the next step is ready.
           </p>
           <RefreshButton />
@@ -91,7 +104,7 @@ export default async function CampaignDetailPage({
 
       {(c.status === "failed" || c.status === "cancelled") && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#C30319]/20 py-20">
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-white/60">
             Campaign {c.status}
           </p>
         </div>

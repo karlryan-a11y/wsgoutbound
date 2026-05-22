@@ -10,9 +10,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         baseTheme: dark,
         variables: {
           colorPrimary: "#BE7B44",
-          colorBackground: "#141414",
-          colorInputBackground: "#1E1E1E",
-          colorText: "#F8E5E7",
+          colorBackground: "#231C16",
+          colorInputBackground: "#2A2118",
+          colorText: "#FFFFFF",
         },
       }}
     >

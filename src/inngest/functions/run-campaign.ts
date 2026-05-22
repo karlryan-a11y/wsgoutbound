@@ -55,12 +55,25 @@ export const runCampaign = inngest.createFunction(
         return await runQuery(sqlResult.sql, { limit: 25 })
       })
 
-      // Save SQL version
+      // Run excluded sample query (best-effort — don't fail the whole flow)
+      const excludedResult = await step.run("run-bq-excluded-sample", async () => {
+        if (!sqlResult.excluded_sql) return { rows: [], totalRows: 0 }
+        try {
+          return await runQuery(sqlResult.excluded_sql, { limit: 10 })
+        } catch {
+          return { rows: [], totalRows: 0 }
+        }
+      })
+
+      // Save SQL version with criteria + excluded samples
       const newVersion: SqlVersion = {
         sql: sqlResult.sql,
         reasoning: sqlResult.reasoning,
         row_count: queryResult.totalRows,
         sample: queryResult.rows,
+        excluded_sample: excludedResult.rows,
+        excluded_count: excludedResult.totalRows,
+        criteria: sqlResult.criteria,
         ts: new Date().toISOString(),
       }
       sqlVersions = [...sqlVersions, newVersion]
@@ -104,12 +117,25 @@ export const runCampaign = inngest.createFunction(
           }
         )
 
+        // Run excluded sample for refined query
+        const refinedExcluded = await step.run("run-refined-excluded", async () => {
+          if (!refined.excluded_sql) return { rows: [], totalRows: 0 }
+          try {
+            return await runQuery(refined.excluded_sql, { limit: 10 })
+          } catch {
+            return { rows: [], totalRows: 0 }
+          }
+        })
+
         const refinedVersion: SqlVersion = {
           sql: refined.sql,
           reasoning: refined.reasoning,
           feedback: review.data.feedback as string,
           row_count: refinedQueryResult.totalRows,
           sample: refinedQueryResult.rows,
+          excluded_sample: refinedExcluded.rows,
+          excluded_count: refinedExcluded.totalRows,
+          criteria: refined.criteria,
           ts: new Date().toISOString(),
         }
         sqlVersions = [...sqlVersions, refinedVersion]

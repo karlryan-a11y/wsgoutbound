@@ -67,6 +67,12 @@ export type SqlVersion = {
   feedback?: string
   row_count?: number
   sample?: Record<string, unknown>[]
+  excluded_sample?: Record<string, unknown>[]
+  excluded_count?: number
+  criteria?: {
+    included: string[]
+    excluded: string[]
+  }
   ts: string
 }
 

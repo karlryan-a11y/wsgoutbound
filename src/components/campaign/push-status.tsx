@@ -6,46 +6,52 @@ export function PushStatus({ campaign }: { campaign: Campaign }) {
   const isCompleted = campaign.status === "completed"
 
   return (
-    <Card>
+    <Card className="border-white/[0.06] bg-white/[0.02]">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
+        <CardTitle className="flex items-center gap-2 text-lg text-white">
           {isCompleted ? "Campaign Complete" : "Pushing to Instantly..."}
-          <Badge className={isCompleted ? "bg-green-600" : "bg-blue-600"}>
+          <Badge
+            className={
+              isCompleted
+                ? "bg-[#2D500D]/30 text-[#5A9A2F]"
+                : "bg-[#7FB5CB]/20 text-[#7FB5CB]"
+            }
+          >
             {isCompleted ? "Done" : "In Progress"}
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-4 text-center">
-          <div>
-            <p className="text-2xl font-bold">
+          <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
+            <p className="text-2xl font-bold text-white">
               {campaign.candidate_count?.toLocaleString() ?? "—"}
             </p>
-            <p className="text-sm text-muted-foreground">Candidates</p>
+            <p className="text-sm text-white/40">Candidates</p>
           </div>
-          <div>
-            <p className="text-2xl font-bold">
+          <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
+            <p className="text-2xl font-bold text-white">
               {campaign.enriched_count?.toLocaleString() ?? "—"}
             </p>
-            <p className="text-sm text-muted-foreground">Enriched</p>
+            <p className="text-sm text-white/40">Enriched</p>
           </div>
-          <div>
-            <p className="text-2xl font-bold">
+          <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
+            <p className="text-2xl font-bold text-[#5A9A2F]">
               {campaign.valid_count?.toLocaleString() ?? "—"}
             </p>
-            <p className="text-sm text-muted-foreground">Valid Emails</p>
+            <p className="text-sm text-white/40">Valid Emails</p>
           </div>
         </div>
 
         {isCompleted && campaign.instantly_campaign_id && (
-          <div className="rounded-lg bg-zinc-900 p-4 text-center">
-            <p className="text-sm text-muted-foreground">
+          <div className="rounded-lg border border-[#BE7B44]/15 bg-[#BE7B44]/[0.05] p-5 text-center">
+            <p className="text-sm text-white/50">
               Leads pushed to Instantly campaign
             </p>
-            <p className="mt-1 font-mono text-sm">
+            <p className="mt-1 font-mono text-sm text-white/70">
               {campaign.instantly_campaign_id}
             </p>
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-3 text-sm text-white/40">
               Go to Instantly to configure sending and launch.
             </p>
           </div>

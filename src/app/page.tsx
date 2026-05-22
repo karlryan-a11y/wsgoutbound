@@ -8,7 +8,7 @@ import type { Campaign, CampaignStatus } from "@/types"
 export const dynamic = "force-dynamic"
 
 const statusColors: Record<CampaignStatus, string> = {
-  draft: "bg-[#1E1E1E] text-[#9A8A8C]",
+  draft: "bg-white/[0.06] text-white/40",
   awaiting_sql_review: "bg-[#BE7B44]/15 text-[#BE7B44]",
   querying: "bg-[#7FB5CB]/15 text-[#7FB5CB]",
   awaiting_volume: "bg-[#BE7B44]/15 text-[#BE7B44]",
@@ -17,16 +17,16 @@ const statusColors: Record<CampaignStatus, string> = {
   pushing: "bg-[#7FB5CB]/15 text-[#7FB5CB]",
   completed: "bg-[#2D500D]/20 text-[#5A9A2F]",
   failed: "bg-[#C30319]/15 text-[#C30319]",
-  cancelled: "bg-[#1E1E1E] text-[#9A8A8C]",
+  cancelled: "bg-white/[0.06] text-white/40",
 }
 
 const statusLabels: Record<CampaignStatus, string> = {
   draft: "Draft",
-  awaiting_sql_review: "SQL Review",
+  awaiting_sql_review: "Review Query",
   querying: "Querying",
-  awaiting_volume: "Volume Pick",
+  awaiting_volume: "Pick Volume",
   enriching: "Enriching",
-  awaiting_copy_review: "Copy Review",
+  awaiting_copy_review: "Review Copy",
   pushing: "Pushing",
   completed: "Completed",
   failed: "Failed",
@@ -45,8 +45,8 @@ export default async function DashboardPage() {
     <div className="container max-w-4xl py-10">
       <div className="mb-10 flex items-center justify-between">
         <div>
-          <h2 className="text-3xl tracking-tight">Campaigns</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2 className="text-3xl tracking-tight text-white">Campaigns</h2>
+          <p className="mt-1 text-sm text-white/50">
             Manage your outbound email campaigns
           </p>
         </div>
@@ -58,12 +58,12 @@ export default async function DashboardPage() {
       </div>
 
       {!campaigns || campaigns.length === 0 ? (
-        <Card className="border-dashed border-border">
+        <Card className="border-dashed border-[#BE7B44]/15">
           <CardContent className="flex flex-col items-center justify-center py-20">
-            <p className="mb-1 text-lg text-muted-foreground">
+            <p className="mb-1 text-lg text-white/60">
               No campaigns yet
             </p>
-            <p className="mb-6 text-sm text-muted-foreground/60">
+            <p className="mb-6 text-sm text-white/30">
               Create your first outbound campaign to get started
             </p>
             <Link href="/new">
@@ -77,9 +77,9 @@ export default async function DashboardPage() {
         <div className="grid gap-3">
           {(campaigns as Campaign[]).map((campaign) => (
             <Link key={campaign.id} href={`/c/${campaign.id}`}>
-              <Card className="transition-all hover:border-[#BE7B44]/20 hover:bg-card/80">
+              <Card className="border-[#BE7B44]/[0.08] transition-all hover:border-[#BE7B44]/20 hover:bg-white/[0.02]">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-base font-medium">
+                  <CardTitle className="text-base font-medium text-white">
                     {campaign.name}
                   </CardTitle>
                   <Badge
@@ -90,19 +90,19 @@ export default async function DashboardPage() {
                   </Badge>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex gap-6 text-sm text-muted-foreground">
+                  <div className="flex gap-6 text-sm text-white/50">
                     <span>{campaign.brief?.persona || "No persona set"}</span>
                     {campaign.candidate_count != null && (
-                      <span className="text-foreground/50">
+                      <span className="text-white/40">
                         {campaign.candidate_count.toLocaleString()} candidates
                       </span>
                     )}
                     {campaign.valid_count != null && (
-                      <span className="text-[#2D500D]">
+                      <span className="text-[#5A9A2F]">
                         {campaign.valid_count.toLocaleString()} valid
                       </span>
                     )}
-                    <span className="ml-auto text-xs text-muted-foreground/50">
+                    <span className="ml-auto text-xs text-white/30">
                       {new Date(campaign.created_at).toLocaleDateString()}
                     </span>
                   </div>

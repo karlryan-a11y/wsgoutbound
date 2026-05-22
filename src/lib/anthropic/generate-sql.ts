@@ -8,7 +8,12 @@ import type { CampaignBrief, SqlVersion } from "@/types"
 export async function generateSql(
   brief: CampaignBrief,
   previousVersions?: SqlVersion[]
-): Promise<{ sql: string; reasoning: string }> {
+): Promise<{
+  sql: string
+  reasoning: string
+  criteria: { included: string[]; excluded: string[] }
+  excluded_sql: string
+}> {
   const client = getAnthropicClient()
 
   // Retrieve relevant knowledge for context
@@ -39,7 +44,26 @@ ${knowledge.length > 0 ? `CONTEXT — relevant knowledge:\n${knowledge.map((k) =
 ${instructions.length > 0 ? `RULES (always apply):\n${instructions.map((i) => `- ${i.rule}`).join("\n")}` : ""}
 ${feedbackContext}
 
-Output JSON only: { "sql": "...", "reasoning": "..." }
+Output JSON only with this structure:
+{
+  "sql": "SELECT ... FROM ... WHERE ... LIMIT ...",
+  "reasoning": "Brief explanation of the approach",
+  "criteria": {
+    "included": [
+      "Plain English descriptions of each inclusion filter, e.g. 'People with job titles matching estate manager, house manager, or household manager'",
+      "Another inclusion criterion"
+    ],
+    "excluded": [
+      "Plain English descriptions of each exclusion filter, e.g. 'Records without an email address'",
+      "Another exclusion criterion"
+    ]
+  },
+  "excluded_sql": "A query that returns sample records that ALMOST matched but were excluded by the filters. Use the same base table but invert or relax one or two key filters. LIMIT 10."
+}
+
+The criteria arrays must describe every WHERE clause in plain, non-technical language that a non-SQL person can understand.
+The excluded_sql should show interesting near-misses — records the user might want to include if they adjusted their criteria.
+
 Use standard BigQuery SQL. Always include LIMIT (default 1000 unless user specifies).
 Prefer the linkedin_us table when the brief mentions industry or company size.
 Prefer the people table when the brief focuses on title/seniority filtering.
@@ -74,14 +98,25 @@ Always filter for records with email IS NOT NULL when the goal is outbound.`
     throw new Error("Failed to parse SQL generation response as JSON")
   }
 
-  return JSON.parse(jsonMatch[0])
+  const parsed = JSON.parse(jsonMatch[0])
+  return {
+    sql: parsed.sql,
+    reasoning: parsed.reasoning,
+    criteria: parsed.criteria ?? { included: [], excluded: [] },
+    excluded_sql: parsed.excluded_sql ?? "",
+  }
 }
 
 export async function refineSqlWithFeedback(
   brief: CampaignBrief,
   previousVersions: SqlVersion[],
   feedback: string
-): Promise<{ sql: string; reasoning: string }> {
+): Promise<{
+  sql: string
+  reasoning: string
+  criteria: { included: string[]; excluded: string[] }
+  excluded_sql: string
+}> {
   // Add feedback to the latest version
   const versionsWithFeedback = [...previousVersions]
   if (versionsWithFeedback.length > 0) {
