@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { submitCopyReview } from "@/app/c/[id]/actions"
 import type { Campaign } from "@/types"
@@ -28,8 +27,8 @@ export function CopyReview({ campaign }: { campaign: Campaign }) {
 
   if (!masterCopy?.steps) {
     return (
-      <div className="flex items-center gap-3 py-10 text-white/60">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-black/20 border-t-white" />
+      <div className="flex items-center gap-3 py-12 text-white/50">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#BE7B44]/30 border-t-[#BE7B44]" />
         Generating copy...
       </div>
     )
@@ -37,51 +36,47 @@ export function CopyReview({ campaign }: { campaign: Campaign }) {
 
   return (
     <div className="space-y-6">
-      <Card className="border-black/10 bg-black/[0.08]">
-        <CardHeader>
-          <CardTitle className="text-lg text-white">Email Sequence</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      {/* Email cards — camel bg with dark email previews */}
+      <div className="rounded-xl bg-[#BE7B44] p-6">
+        <h2 className="mb-5 text-lg font-medium text-white">Email Sequence</h2>
+        <div className="space-y-4">
           {masterCopy.steps.map((step, i) => (
             <div
               key={i}
-              className="rounded-lg border border-black/10 bg-black/[0.04] p-5"
+              className="rounded-lg bg-black/20 p-5"
             >
               <div className="mb-3 flex items-center gap-2">
-                <Badge
-                  variant="outline"
-                  className="border-white/30 text-white"
-                >
+                <Badge className="border-0 bg-white/20 text-white text-xs">
                   Step {i + 1}
                 </Badge>
-                <span className="text-xs text-white/40">
+                <span className="text-xs text-white/50">
                   {step.delay_days === 0
                     ? "Send immediately"
                     : `+${step.delay_days} days`}
                 </span>
               </div>
               <p className="mb-2 font-medium text-white">{step.subject}</p>
-              <pre className="whitespace-pre-wrap text-sm text-white/60">
+              <pre className="whitespace-pre-wrap text-sm text-white/70">
                 {step.body}
               </pre>
             </div>
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
+      {/* Actions */}
       <div className="flex gap-3">
         <Button
           onClick={handleApprove}
           disabled={loading}
-          className="bg-[#2D500D] text-white hover:bg-[#3A6A12]"
+          className="bg-[#BE7B44] text-white hover:bg-[#A86A37]"
         >
           Approve & Push to Instantly
         </Button>
         <Button
-          variant="outline"
           onClick={handleReject}
           disabled={loading}
-          className="border-[#C30319]/30 text-[#C30319] hover:bg-[#C30319]/10"
+          className="border border-white/10 bg-transparent text-white/60 hover:bg-white/5 hover:text-white"
         >
           Reject & Cancel
         </Button>

@@ -11,19 +11,6 @@ import { PushStatus } from "@/components/campaign/push-status"
 
 export const dynamic = "force-dynamic"
 
-const statusStyles: Record<CampaignStatus, string> = {
-  draft: "border-white/20 text-white/50",
-  awaiting_sql_review: "border-white/30 text-white",
-  querying: "border-[#7FB5CB]/30 text-[#7FB5CB]",
-  awaiting_volume: "border-white/30 text-white",
-  enriching: "border-[#7FB5CB]/30 text-[#7FB5CB]",
-  awaiting_copy_review: "border-white/30 text-white",
-  pushing: "border-[#7FB5CB]/30 text-[#7FB5CB]",
-  completed: "border-[#2D500D]/30 text-[#5A9A2F]",
-  failed: "border-[#C30319]/30 text-[#C30319]",
-  cancelled: "border-white/20 text-white/50",
-}
-
 const statusLabels: Record<CampaignStatus, string> = {
   draft: "Draft",
   awaiting_sql_review: "Review Query",
@@ -35,6 +22,19 @@ const statusLabels: Record<CampaignStatus, string> = {
   completed: "Completed",
   failed: "Failed",
   cancelled: "Cancelled",
+}
+
+const statusBadge: Record<CampaignStatus, string> = {
+  draft: "border-white/20 text-white/50",
+  awaiting_sql_review: "border-[#BE7B44] text-[#BE7B44]",
+  querying: "border-[#7FB5CB] text-[#7FB5CB]",
+  awaiting_volume: "border-[#BE7B44] text-[#BE7B44]",
+  enriching: "border-[#7FB5CB] text-[#7FB5CB]",
+  awaiting_copy_review: "border-[#BE7B44] text-[#BE7B44]",
+  pushing: "border-[#7FB5CB] text-[#7FB5CB]",
+  completed: "border-[#2D500D] text-[#5A9A2F]",
+  failed: "border-[#C30319] text-[#C30319]",
+  cancelled: "border-white/20 text-white/50",
 }
 
 export default async function CampaignDetailPage({
@@ -57,6 +57,7 @@ export default async function CampaignDetailPage({
 
   return (
     <div className="container max-w-4xl py-10">
+      {/* Header area — on black bg */}
       <div className="mb-8 flex items-center justify-between">
         <div>
           <Link
@@ -70,32 +71,30 @@ export default async function CampaignDetailPage({
         </div>
         <Badge
           variant="outline"
-          className={`text-sm ${statusStyles[c.status]}`}
+          className={`text-sm ${statusBadge[c.status]}`}
         >
           {statusLabels[c.status]}
         </Badge>
       </div>
 
-      {/* Render stage component based on status */}
+      {/* Active review stages — components handle their own camel cards */}
       {c.status === "awaiting_sql_review" && <SqlReview campaign={c} />}
-
       {c.status === "awaiting_volume" && <VolumePicker campaign={c} />}
-
       {c.status === "awaiting_copy_review" && <CopyReview campaign={c} />}
-
       {(c.status === "pushing" || c.status === "completed") && (
         <PushStatus campaign={c} />
       )}
 
+      {/* Processing states — black bg with subtle spinner */}
       {(c.status === "draft" ||
         c.status === "querying" ||
         c.status === "enriching") && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-black/15 py-20">
-          <div className="mb-3 h-8 w-8 animate-spin rounded-full border-2 border-black/20 border-t-white" />
-          <p className="text-lg text-white/80">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/10 py-20">
+          <div className="mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#BE7B44]/30 border-t-[#BE7B44]" />
+          <p className="text-lg text-white/70">
             {statusLabels[c.status]}
           </p>
-          <p className="mt-1 text-sm text-white/40">
+          <p className="mt-1 text-sm text-white/30">
             This page will update when the next step is ready.
           </p>
           <RefreshButton />
@@ -103,8 +102,8 @@ export default async function CampaignDetailPage({
       )}
 
       {(c.status === "failed" || c.status === "cancelled") && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#C30319]/20 py-20">
-          <p className="text-lg text-white/60">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#C30319]/20 py-20">
+          <p className="text-lg text-white/50">
             Campaign {c.status}
           </p>
         </div>
