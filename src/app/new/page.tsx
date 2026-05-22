@@ -43,7 +43,7 @@ export default function NewCampaignPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Campaign Name */}
-        <Card className="border-white/[0.06] bg-white/[0.02]">
+        <Card className="border-black/10 bg-black/[0.08]">
           <CardHeader>
             <CardTitle className="text-base text-white">Basics</CardTitle>
           </CardHeader>
@@ -55,14 +55,14 @@ export default function NewCampaignPage() {
                 name="name"
                 placeholder="e.g. Family Offices CA Q1"
                 required
-                className="mt-1.5 border-white/[0.08] bg-white/[0.03] text-white placeholder:text-white/30"
+                className="mt-1.5 border-black/10 bg-black/[0.06] text-white placeholder:text-white/30"
               />
             </div>
           </CardContent>
         </Card>
 
         {/* Targeting */}
-        <Card className="border-white/[0.06] bg-white/[0.02]">
+        <Card className="border-black/10 bg-black/[0.08]">
           <CardHeader>
             <CardTitle className="text-base text-white">Targeting</CardTitle>
           </CardHeader>
@@ -74,7 +74,7 @@ export default function NewCampaignPage() {
                 name="persona"
                 placeholder="Describe who you're targeting — e.g. CFOs and VPs of Finance at mid-market companies in California"
                 required
-                className="mt-1.5 border-white/[0.08] bg-white/[0.03] text-white placeholder:text-white/30"
+                className="mt-1.5 border-black/10 bg-black/[0.06] text-white placeholder:text-white/30"
               />
             </div>
             <div>
@@ -86,7 +86,7 @@ export default function NewCampaignPage() {
                 name="titles_include"
                 placeholder="CFO, VP Finance, Controller, Director of Finance"
                 required
-                className="mt-1.5 border-white/[0.08] bg-white/[0.03] text-white placeholder:text-white/30"
+                className="mt-1.5 border-black/10 bg-black/[0.06] text-white placeholder:text-white/30"
               />
             </div>
             <div>
@@ -97,7 +97,7 @@ export default function NewCampaignPage() {
                 id="titles_exclude"
                 name="titles_exclude"
                 placeholder="Intern, Student, Retired"
-                className="mt-1.5 border-white/[0.08] bg-white/[0.03] text-white placeholder:text-white/30"
+                className="mt-1.5 border-black/10 bg-black/[0.06] text-white placeholder:text-white/30"
               />
             </div>
             <div>
@@ -109,7 +109,7 @@ export default function NewCampaignPage() {
                 name="geographies"
                 placeholder="California, New York, Texas"
                 required
-                className="mt-1.5 border-white/[0.08] bg-white/[0.03] text-white placeholder:text-white/30"
+                className="mt-1.5 border-black/10 bg-black/[0.06] text-white placeholder:text-white/30"
               />
             </div>
             <div>
@@ -120,14 +120,14 @@ export default function NewCampaignPage() {
                 id="industries"
                 name="industries"
                 placeholder="Real Estate, Manufacturing, Healthcare"
-                className="mt-1.5 border-white/[0.08] bg-white/[0.03] text-white placeholder:text-white/30"
+                className="mt-1.5 border-black/10 bg-black/[0.06] text-white placeholder:text-white/30"
               />
             </div>
           </CardContent>
         </Card>
 
         {/* Messaging */}
-        <Card className="border-white/[0.06] bg-white/[0.02]">
+        <Card className="border-black/10 bg-black/[0.08]">
           <CardHeader>
             <CardTitle className="text-base text-white">Messaging</CardTitle>
           </CardHeader>
@@ -139,7 +139,7 @@ export default function NewCampaignPage() {
                 name="value_prop"
                 placeholder="What's the value you're offering? e.g. We find hidden savings in utility bills through rate and tariff analysis — contingency-based, so no savings = no fee."
                 required
-                className="mt-1.5 border-white/[0.08] bg-white/[0.03] text-white placeholder:text-white/30"
+                className="mt-1.5 border-black/10 bg-black/[0.06] text-white placeholder:text-white/30"
               />
             </div>
             <div>
@@ -149,13 +149,13 @@ export default function NewCampaignPage() {
                 name="cta"
                 placeholder="e.g. 15-minute call to review your utility spend"
                 required
-                className="mt-1.5 border-white/[0.08] bg-white/[0.03] text-white placeholder:text-white/30"
+                className="mt-1.5 border-black/10 bg-black/[0.06] text-white placeholder:text-white/30"
               />
             </div>
             <div>
               <Label htmlFor="tone" className="text-white/70">Tone</Label>
               <Select name="tone" defaultValue="consultative">
-                <SelectTrigger className="mt-1.5 border-white/[0.08] bg-white/[0.03] text-white">
+                <SelectTrigger className="mt-1.5 border-black/10 bg-black/[0.06] text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -168,7 +168,7 @@ export default function NewCampaignPage() {
             <div>
               <Label htmlFor="sequence_length" className="text-white/70">Sequence Length</Label>
               <Select name="sequence_length" defaultValue="5">
-                <SelectTrigger className="mt-1.5 border-white/[0.08] bg-white/[0.03] text-white">
+                <SelectTrigger className="mt-1.5 border-black/10 bg-black/[0.06] text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -187,7 +187,7 @@ export default function NewCampaignPage() {
                 name="instantly_campaign_id"
                 placeholder="Paste from Instantly"
                 required
-                className="mt-1.5 border-white/[0.08] bg-white/[0.03] text-white placeholder:text-white/30"
+                className="mt-1.5 border-black/10 bg-black/[0.06] text-white placeholder:text-white/30"
               />
             </div>
           </CardContent>
@@ -195,7 +195,7 @@ export default function NewCampaignPage() {
 
         <Button
           type="submit"
-          className="w-full bg-[#BE7B44] text-white hover:bg-[#A86A37]"
+          className="w-full bg-black text-white hover:bg-black/80"
           disabled={loading}
         >
           {loading ? "Creating..." : "Create Campaign & Generate Query"}

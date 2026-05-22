@@ -9,11 +9,11 @@ export const dynamic = "force-dynamic"
 
 const statusColors: Record<CampaignStatus, string> = {
   draft: "bg-white/[0.06] text-white/40",
-  awaiting_sql_review: "bg-[#BE7B44]/15 text-[#BE7B44]",
+  awaiting_sql_review: "bg-black/15 text-white",
   querying: "bg-[#7FB5CB]/15 text-[#7FB5CB]",
-  awaiting_volume: "bg-[#BE7B44]/15 text-[#BE7B44]",
+  awaiting_volume: "bg-black/15 text-white",
   enriching: "bg-[#7FB5CB]/15 text-[#7FB5CB]",
-  awaiting_copy_review: "bg-[#BE7B44]/15 text-[#BE7B44]",
+  awaiting_copy_review: "bg-black/15 text-white",
   pushing: "bg-[#7FB5CB]/15 text-[#7FB5CB]",
   completed: "bg-[#2D500D]/20 text-[#5A9A2F]",
   failed: "bg-[#C30319]/15 text-[#C30319]",
@@ -51,14 +51,14 @@ export default async function DashboardPage() {
           </p>
         </div>
         <Link href="/new">
-          <Button className="bg-[#BE7B44] text-white hover:bg-[#A86A37]">
+          <Button className="bg-black text-white hover:bg-black/80">
             New Campaign
           </Button>
         </Link>
       </div>
 
       {!campaigns || campaigns.length === 0 ? (
-        <Card className="border-dashed border-[#BE7B44]/15">
+        <Card className="border-dashed border-black/15">
           <CardContent className="flex flex-col items-center justify-center py-20">
             <p className="mb-1 text-lg text-white/60">
               No campaigns yet
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
               Create your first outbound campaign to get started
             </p>
             <Link href="/new">
-              <Button className="bg-[#BE7B44] text-white hover:bg-[#A86A37]">
+              <Button className="bg-black text-white hover:bg-black/80">
                 Create Campaign
               </Button>
             </Link>
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
         <div className="grid gap-3">
           {(campaigns as Campaign[]).map((campaign) => (
             <Link key={campaign.id} href={`/c/${campaign.id}`}>
-              <Card className="border-[#BE7B44]/[0.08] transition-all hover:border-[#BE7B44]/20 hover:bg-white/[0.02]">
+              <Card className="border-black/10 transition-all hover:border-black/20 hover:bg-black/[0.05]">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-base font-medium text-white">
                     {campaign.name}

@@ -13,11 +13,11 @@ export const dynamic = "force-dynamic"
 
 const statusStyles: Record<CampaignStatus, string> = {
   draft: "border-white/20 text-white/50",
-  awaiting_sql_review: "border-[#BE7B44]/30 text-[#BE7B44]",
+  awaiting_sql_review: "border-white/30 text-white",
   querying: "border-[#7FB5CB]/30 text-[#7FB5CB]",
-  awaiting_volume: "border-[#BE7B44]/30 text-[#BE7B44]",
+  awaiting_volume: "border-white/30 text-white",
   enriching: "border-[#7FB5CB]/30 text-[#7FB5CB]",
-  awaiting_copy_review: "border-[#BE7B44]/30 text-[#BE7B44]",
+  awaiting_copy_review: "border-white/30 text-white",
   pushing: "border-[#7FB5CB]/30 text-[#7FB5CB]",
   completed: "border-[#2D500D]/30 text-[#5A9A2F]",
   failed: "border-[#C30319]/30 text-[#C30319]",
@@ -90,8 +90,8 @@ export default async function CampaignDetailPage({
       {(c.status === "draft" ||
         c.status === "querying" ||
         c.status === "enriching") && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#BE7B44]/15 py-20">
-          <div className="mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#BE7B44]/20 border-t-[#BE7B44]" />
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-black/15 py-20">
+          <div className="mb-3 h-8 w-8 animate-spin rounded-full border-2 border-black/20 border-t-white" />
           <p className="text-lg text-white/80">
             {statusLabels[c.status]}
           </p>

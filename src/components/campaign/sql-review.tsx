@@ -51,10 +51,10 @@ function SampleTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-white/[0.06]">
+    <div className="overflow-x-auto rounded-lg border border-black/10">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-white/[0.08] bg-white/[0.02]">
+          <tr className="border-b border-black/10 bg-black/[0.04]">
             {displayKeys.map((key) => (
               <th
                 key={key}
@@ -69,7 +69,7 @@ function SampleTable({
           {rows.slice(0, maxRows).map((row, i) => (
             <tr
               key={i}
-              className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03]"
+              className="border-b border-black/[0.06] transition-colors hover:bg-black/[0.04]"
             >
               {displayKeys.map((key) => (
                 <td key={key} className="px-4 py-2.5 text-white/70">
@@ -113,7 +113,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
   if (!latestVersion) {
     return (
       <div className="flex items-center gap-3 py-10 text-white/60">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#BE7B44]/30 border-t-[#BE7B44]" />
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-black/20 border-t-white" />
         Generating query criteria...
       </div>
     )
@@ -127,7 +127,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
   return (
     <div className="space-y-6">
       {/* Query Criteria */}
-      <Card className="border-white/[0.06] bg-white/[0.02]">
+      <Card className="border-black/10 bg-black/[0.08]">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg text-white">
@@ -140,7 +140,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
             </CardTitle>
             <Badge
               variant="outline"
-              className="border-[#BE7B44]/30 text-[#BE7B44]"
+              className="border-white/30 text-white"
             >
               {latestVersion.row_count?.toLocaleString() ?? "—"} matches
             </Badge>
@@ -209,9 +209,9 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
 
       {/* Sample Results Tabs */}
       {(latestVersion.sample?.length ?? 0) > 0 && (
-        <Card className="border-white/[0.06] bg-white/[0.02]">
+        <Card className="border-black/10 bg-black/[0.08]">
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-1 rounded-lg bg-white/[0.04] p-1">
+            <div className="flex items-center gap-1 rounded-lg bg-black/[0.06] p-1">
               <button
                 onClick={() => setActiveTab("included")}
                 className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
@@ -259,7 +259,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
       )}
 
       {/* Refinement Actions */}
-      <Card className="border-white/[0.06] bg-white/[0.02]">
+      <Card className="border-black/10 bg-black/[0.08]">
         <CardContent className="pt-6">
           <div className="space-y-4">
             <div>
@@ -270,7 +270,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 placeholder="e.g. Include VP of Operations titles, exclude healthcare industry, focus on companies with 200+ employees..."
-                className="mt-2 min-h-[80px] border-white/[0.08] bg-white/[0.03] text-white placeholder:text-white/30"
+                className="mt-2 min-h-[80px] border-black/10 bg-black/[0.06] text-white placeholder:text-white/30"
               />
             </div>
             <div className="flex gap-3">
@@ -285,7 +285,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                 variant="outline"
                 onClick={handleRefine}
                 disabled={loading || !feedback.trim()}
-                className="border-[#BE7B44]/30 text-[#BE7B44] hover:bg-[#BE7B44]/10"
+                className="border-white/30 text-white hover:bg-white/10"
               >
                 Refine Query
               </Button>

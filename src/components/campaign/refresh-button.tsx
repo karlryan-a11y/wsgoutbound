@@ -8,7 +8,7 @@ export function RefreshButton() {
   return (
     <Button
       variant="outline"
-      className="mt-4 border-white/[0.1] text-white/60 hover:bg-white/[0.05] hover:text-white"
+      className="mt-4 border-black/15 text-white/70 hover:bg-black/10 hover:text-white"
       onClick={() => router.refresh()}
     >
       Refresh

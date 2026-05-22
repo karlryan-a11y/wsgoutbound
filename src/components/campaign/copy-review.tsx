@@ -29,7 +29,7 @@ export function CopyReview({ campaign }: { campaign: Campaign }) {
   if (!masterCopy?.steps) {
     return (
       <div className="flex items-center gap-3 py-10 text-white/60">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#BE7B44]/30 border-t-[#BE7B44]" />
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-black/20 border-t-white" />
         Generating copy...
       </div>
     )
@@ -37,7 +37,7 @@ export function CopyReview({ campaign }: { campaign: Campaign }) {
 
   return (
     <div className="space-y-6">
-      <Card className="border-white/[0.06] bg-white/[0.02]">
+      <Card className="border-black/10 bg-black/[0.08]">
         <CardHeader>
           <CardTitle className="text-lg text-white">Email Sequence</CardTitle>
         </CardHeader>
@@ -45,12 +45,12 @@ export function CopyReview({ campaign }: { campaign: Campaign }) {
           {masterCopy.steps.map((step, i) => (
             <div
               key={i}
-              className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-5"
+              className="rounded-lg border border-black/10 bg-black/[0.04] p-5"
             >
               <div className="mb-3 flex items-center gap-2">
                 <Badge
                   variant="outline"
-                  className="border-[#BE7B44]/30 text-[#BE7B44]"
+                  className="border-white/30 text-white"
                 >
                   Step {i + 1}
                 </Badge>

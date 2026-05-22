@@ -23,7 +23,7 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
   }
 
   return (
-    <Card className="border-white/[0.06] bg-white/[0.02]">
+    <Card className="border-black/10 bg-black/[0.08]">
       <CardHeader>
         <CardTitle className="text-lg text-white">Select Volume to Enrich</CardTitle>
       </CardHeader>
@@ -40,7 +40,7 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
         <div>
           <p className="mb-3 text-sm text-white/70">
             Enrich{" "}
-            <span className="text-xl font-bold text-[#BE7B44]">{enrichCount}</span>{" "}
+            <span className="text-xl font-bold text-white">{enrichCount}</span>{" "}
             leads
           </p>
           <Slider
@@ -59,7 +59,7 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
         <Button
           onClick={handleSubmit}
           disabled={loading}
-          className="w-full bg-[#BE7B44] text-white hover:bg-[#A86A37]"
+          className="w-full bg-black text-white hover:bg-black/80"
         >
           {loading
             ? "Starting enrichment..."
