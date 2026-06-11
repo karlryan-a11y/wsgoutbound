@@ -7,7 +7,12 @@ import { UserButton } from "@clerk/nextjs"
 export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b transition-all duration-500"
-      style={{ borderColor: "var(--line)", background: "var(--wsg-black)" }}
+      style={{
+        borderColor: "var(--line)",
+        background: "rgba(22, 18, 13, 0.72)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+      }}
     >
       <div className="mx-auto flex h-24 max-w-[1400px] items-center justify-between"
         style={{ padding: "0 clamp(1.25rem, 5vw, 6rem)" }}

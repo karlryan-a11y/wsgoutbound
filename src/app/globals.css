@@ -169,11 +169,11 @@
 
 /* WSG Dark — the primary mode for outbound tool */
 .dark {
-  --background: #0c0a08;
+  --background: #1c1813;
   --foreground: #f5f1ea;
   --card: rgba(255, 255, 255, 0.05);
   --card-foreground: #f5f1ea;
-  --popover: #141210;
+  --popover: #221d16;
   --popover-foreground: #f5f1ea;
   --primary: #ffffff;
   --primary-foreground: #050505;
@@ -221,8 +221,8 @@
     font-family: var(--sans);
     font-weight: 400;
     line-height: 1.7;
-    /* Warm near-black with a subtle glow up top — depth without harsh pure black */
-    background: radial-gradient(135% 105% at 50% -20%, #16120d 0%, #0d0b09 52%, #080706 100%);
+    /* Warm charcoal — a real, visible lift off pure black, deepening toward the bottom */
+    background: linear-gradient(180deg, #241f18 0%, #1c1813 55%, #16120d 100%);
     background-attachment: fixed;
     color: var(--foreground);
   }
