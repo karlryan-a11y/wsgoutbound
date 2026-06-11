@@ -1,37 +1,55 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Suspense, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import Link from "next/link"
 import { createCampaign } from "./actions"
 
-function Section({
-  title,
+function Field({
+  label,
   children,
 }: {
-  title: string
+  label: string
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-xl bg-[#BE7B44] p-6">
-      <h2 className="mb-4 text-base font-medium text-white">{title}</h2>
-      <div className="space-y-4">{children}</div>
+    <div>
+      <label
+        className="eyebrow mb-3 block"
+        style={{ color: "rgba(255,255,255,0.5)" }}
+      >
+        {label}
+      </label>
+      {children}
     </div>
   )
 }
 
-export default function NewCampaignPage() {
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "0.85rem 0",
+  background: "transparent",
+  border: "none",
+  borderBottom: "1px solid var(--line-strong)",
+  color: "#fff",
+  fontFamily: "var(--sans)",
+  fontSize: "1rem",
+  fontWeight: 300,
+  lineHeight: 1.7,
+  outline: "none",
+  transition: "border-color 0.3s ease",
+}
+
+const selectStyle: React.CSSProperties = {
+  ...inputStyle,
+  appearance: "none" as const,
+  cursor: "pointer",
+}
+
+function NewCampaignForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const prefill = searchParams.get("q")
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -49,138 +67,306 @@ export default function NewCampaignPage() {
     }
   }
 
-  const inputClass =
-    "border-white/20 bg-black/20 text-white placeholder:text-white/40 focus-visible:ring-white/30"
-
   return (
-    <div className="container max-w-2xl py-8">
-      <h1 className="mb-8 text-2xl tracking-tight text-white">
+    <div
+      className="mx-auto w-full max-w-[720px]"
+      style={{ padding: "clamp(3rem, 8vw, 6rem) clamp(1.25rem, 5vw, 4rem)" }}
+    >
+      {/* Back link */}
+      <Link
+        href="/"
+        className="nav-link eyebrow mb-12 inline-block"
+        style={{ color: "rgba(255,255,255,0.35)" }}
+      >
+        &larr; Back
+      </Link>
+
+      <span className="eyebrow mb-4 block">Create</span>
+      <h1
+        className="mb-6"
+        style={{ fontSize: "clamp(2rem, 4.2vw, 3.2rem)" }}
+      >
         New Campaign
       </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Section title="Basics">
-          <div>
-            <Label className="text-white/80">Campaign Name</Label>
-            <Input
-              name="name"
-              placeholder="e.g. Family Offices CA Q1"
-              required
-              className={`mt-1.5 ${inputClass}`}
-            />
-          </div>
-        </Section>
-
-        <Section title="Targeting">
-          <div>
-            <Label className="text-white/80">Target Persona</Label>
-            <Textarea
-              name="persona"
-              placeholder="Describe who you're targeting — e.g. CFOs and VPs of Finance at mid-market companies in California"
-              required
-              className={`mt-1.5 ${inputClass}`}
-            />
-          </div>
-          <div>
-            <Label className="text-white/80">Include Titles (comma-separated)</Label>
-            <Input
-              name="titles_include"
-              placeholder="CFO, VP Finance, Controller, Director of Finance"
-              required
-              className={`mt-1.5 ${inputClass}`}
-            />
-          </div>
-          <div>
-            <Label className="text-white/80">Exclude Titles (comma-separated, optional)</Label>
-            <Input
-              name="titles_exclude"
-              placeholder="Intern, Student, Retired"
-              className={`mt-1.5 ${inputClass}`}
-            />
-          </div>
-          <div>
-            <Label className="text-white/80">Geographies (comma-separated)</Label>
-            <Input
-              name="geographies"
-              placeholder="California, New York, Texas"
-              required
-              className={`mt-1.5 ${inputClass}`}
-            />
-          </div>
-          <div>
-            <Label className="text-white/80">Industries (comma-separated, optional)</Label>
-            <Input
-              name="industries"
-              placeholder="Real Estate, Manufacturing, Healthcare"
-              className={`mt-1.5 ${inputClass}`}
-            />
-          </div>
-        </Section>
-
-        <Section title="Messaging">
-          <div>
-            <Label className="text-white/80">Value Proposition</Label>
-            <Textarea
-              name="value_prop"
-              placeholder="What's the value you're offering?"
-              required
-              className={`mt-1.5 ${inputClass}`}
-            />
-          </div>
-          <div>
-            <Label className="text-white/80">Call to Action</Label>
-            <Input
-              name="cta"
-              placeholder="e.g. 15-minute call to review your utility spend"
-              required
-              className={`mt-1.5 ${inputClass}`}
-            />
-          </div>
-          <div>
-            <Label className="text-white/80">Tone</Label>
-            <Select name="tone" defaultValue="consultative">
-              <SelectTrigger className={`mt-1.5 ${inputClass}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="luxury_formal">Luxury Formal</SelectItem>
-                <SelectItem value="consultative">Consultative</SelectItem>
-                <SelectItem value="direct">Direct</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-white/80">Sequence Length</Label>
-            <Select name="sequence_length" defaultValue="5">
-              <SelectTrigger className={`mt-1.5 ${inputClass}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="3">3 emails</SelectItem>
-                <SelectItem value="5">5 emails</SelectItem>
-                <SelectItem value="7">7 emails</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-white/80">Instantly Campaign ID</Label>
-            <Input
-              name="instantly_campaign_id"
-              placeholder="Paste from Instantly"
-              required
-              className={`mt-1.5 ${inputClass}`}
-            />
-          </div>
-        </Section>
-
-        <Button
-          type="submit"
-          className="w-full bg-[#BE7B44] text-white hover:bg-[#A86A37]"
-          disabled={loading}
+      {prefill && (
+        <div
+          className="mb-12"
+          style={{
+            padding: "1rem 1.5rem",
+            border: "1px solid var(--wsg-camel)",
+            background: "rgba(190, 123, 68, 0.06)",
+          }}
         >
-          {loading ? "Creating..." : "Create Campaign & Generate Query"}
-        </Button>
+          <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.6)", fontWeight: 300 }}>
+            Parsed from your description — edit any fields below.
+          </p>
+        </div>
+      )}
+
+      {!prefill && <div className="mb-16" />}
+
+      <form onSubmit={handleSubmit}>
+        {/* ── Section: Basics ──────────────────────────────────────── */}
+        <div className="mb-16">
+          <div
+            className="mb-8 flex items-center gap-4"
+            style={{ borderBottom: "1px solid var(--line)" }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: "0.85rem",
+                fontStyle: "italic",
+                color: "var(--wsg-muted)",
+                paddingBottom: "1rem",
+              }}
+            >
+              01
+            </span>
+            <h2
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: "1.5rem",
+                fontWeight: 300,
+                paddingBottom: "1rem",
+              }}
+            >
+              Basics
+            </h2>
+          </div>
+          <div className="space-y-8">
+            <Field label="Campaign Name">
+              <input
+                name="name"
+                placeholder="e.g. Family Offices CA Q1"
+                required
+                style={inputStyle}
+                onFocus={(e) =>
+                  (e.target.style.borderBottomColor = "var(--wsg-camel)")
+                }
+                onBlur={(e) =>
+                  (e.target.style.borderBottomColor = "var(--line-strong)")
+                }
+              />
+            </Field>
+          </div>
+        </div>
+
+        {/* ── Section: Targeting ───────────────────────────────────── */}
+        <div className="mb-16">
+          <div
+            className="mb-8 flex items-center gap-4"
+            style={{ borderBottom: "1px solid var(--line)" }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: "0.85rem",
+                fontStyle: "italic",
+                color: "var(--wsg-muted)",
+                paddingBottom: "1rem",
+              }}
+            >
+              02
+            </span>
+            <h2
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: "1.5rem",
+                fontWeight: 300,
+                paddingBottom: "1rem",
+              }}
+            >
+              Targeting
+            </h2>
+          </div>
+          <div className="space-y-8">
+            <Field label="Who are you reaching?">
+              <textarea
+                name="persona"
+                defaultValue={prefill || ""}
+                placeholder="Describe who you're targeting — e.g. CFOs and VPs of Finance at mid-market companies in California"
+                required
+                rows={3}
+                style={{ ...inputStyle, resize: "vertical" as const }}
+                onFocus={(e) =>
+                  (e.target.style.borderBottomColor = "var(--wsg-camel)")
+                }
+                onBlur={(e) =>
+                  (e.target.style.borderBottomColor = "var(--line-strong)")
+                }
+              />
+            </Field>
+            <Field label="Job titles to target">
+              <input
+                name="titles_include"
+                placeholder="CFO, VP Finance, Controller, Director of Finance"
+                required
+                style={inputStyle}
+                onFocus={(e) =>
+                  (e.target.style.borderBottomColor = "var(--wsg-camel)")
+                }
+                onBlur={(e) =>
+                  (e.target.style.borderBottomColor = "var(--line-strong)")
+                }
+              />
+            </Field>
+            <Field label="Job titles to skip (optional)">
+              <input
+                name="titles_exclude"
+                placeholder="Intern, Student, Retired"
+                style={inputStyle}
+                onFocus={(e) =>
+                  (e.target.style.borderBottomColor = "var(--wsg-camel)")
+                }
+                onBlur={(e) =>
+                  (e.target.style.borderBottomColor = "var(--line-strong)")
+                }
+              />
+            </Field>
+            <Field label="Locations">
+              <input
+                name="geographies"
+                placeholder="California, New York, Texas"
+                required
+                style={inputStyle}
+                onFocus={(e) =>
+                  (e.target.style.borderBottomColor = "var(--wsg-camel)")
+                }
+                onBlur={(e) =>
+                  (e.target.style.borderBottomColor = "var(--line-strong)")
+                }
+              />
+            </Field>
+            <Field label="Industries (optional)">
+              <input
+                name="industries"
+                placeholder="Real Estate, Manufacturing, Healthcare"
+                style={inputStyle}
+                onFocus={(e) =>
+                  (e.target.style.borderBottomColor = "var(--wsg-camel)")
+                }
+                onBlur={(e) =>
+                  (e.target.style.borderBottomColor = "var(--line-strong)")
+                }
+              />
+            </Field>
+          </div>
+        </div>
+
+        {/* ── Section: Messaging ───────────────────────────────────── */}
+        <div className="mb-16">
+          <div
+            className="mb-8 flex items-center gap-4"
+            style={{ borderBottom: "1px solid var(--line)" }}
+          >
+            <span
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: "0.85rem",
+                fontStyle: "italic",
+                color: "var(--wsg-muted)",
+                paddingBottom: "1rem",
+              }}
+            >
+              03
+            </span>
+            <h2
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: "1.5rem",
+                fontWeight: 300,
+                paddingBottom: "1rem",
+              }}
+            >
+              Messaging
+            </h2>
+          </div>
+          <div className="space-y-8">
+            <Field label="What's the pitch?">
+              <textarea
+                name="value_prop"
+                placeholder="What value are you offering? e.g. We find hidden savings on utility bills"
+                required
+                rows={3}
+                style={{ ...inputStyle, resize: "vertical" as const }}
+                onFocus={(e) =>
+                  (e.target.style.borderBottomColor = "var(--wsg-camel)")
+                }
+                onBlur={(e) =>
+                  (e.target.style.borderBottomColor = "var(--line-strong)")
+                }
+              />
+            </Field>
+            <Field label="What should they do?">
+              <input
+                name="cta"
+                placeholder="e.g. 15-minute call to review your utility spend"
+                required
+                style={inputStyle}
+                onFocus={(e) =>
+                  (e.target.style.borderBottomColor = "var(--wsg-camel)")
+                }
+                onBlur={(e) =>
+                  (e.target.style.borderBottomColor = "var(--line-strong)")
+                }
+              />
+            </Field>
+            <div className="grid grid-cols-2 gap-12">
+              <Field label="Tone">
+                <select name="tone" defaultValue="consultative" style={selectStyle}>
+                  <option value="luxury_formal">Luxury Formal</option>
+                  <option value="consultative">Consultative</option>
+                  <option value="direct">Direct</option>
+                </select>
+              </Field>
+              <Field label="Sequence Length">
+                <select name="sequence_length" defaultValue="5" style={selectStyle}>
+                  <option value="3">3 emails</option>
+                  <option value="5">5 emails</option>
+                  <option value="7">7 emails</option>
+                </select>
+              </Field>
+            </div>
+            <Field label="Instantly Campaign ID">
+              <input
+                name="instantly_campaign_id"
+                placeholder="Paste from Instantly"
+                required
+                style={inputStyle}
+                onFocus={(e) =>
+                  (e.target.style.borderBottomColor = "var(--wsg-camel)")
+                }
+                onBlur={(e) =>
+                  (e.target.style.borderBottomColor = "var(--line-strong)")
+                }
+              />
+            </Field>
+          </div>
+        </div>
+
+        {/* ── Submit ───────────────────────────────────────────────── */}
+        <div style={{ borderTop: "1px solid var(--line)", paddingTop: "2.5rem" }}>
+          <button
+            type="submit"
+            className="wsg-btn-primary w-full"
+            disabled={loading}
+          >
+            {loading ? "Creating..." : "Create Campaign & Generate Query"}
+          </button>
+        </div>
       </form>
     </div>
+  )
+}
+
+export default function NewCampaignPage() {
+  // useSearchParams() must sit under a Suspense boundary or the production
+  // build bails out of static rendering for the whole route.
+  return (
+    <Suspense fallback={null}>
+      <NewCampaignForm />
+    </Suspense>
   )
 }

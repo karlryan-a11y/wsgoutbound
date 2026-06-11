@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { submitVolumeSelection } from "@/app/c/[id]/actions"
 import type { Campaign } from "@/types"
@@ -18,52 +17,125 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
   async function handleSubmit() {
     setLoading(true)
     await submitVolumeSelection(campaign.id, enrichCount)
-    router.refresh()
+
+    // Poll until status changes from awaiting_volume, then refresh
+    const poll = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/campaign/${campaign.id}/progress`, {
+          cache: "no-store",
+        })
+        if (res.ok) {
+          const d = await res.json()
+          if (d.status !== "awaiting_volume") {
+            clearInterval(poll)
+            router.refresh()
+          }
+        }
+      } catch {
+        // keep polling
+      }
+    }, 2000)
   }
 
   return (
-    <div className="rounded-xl bg-[#BE7B44] p-6">
-      <h2 className="mb-5 text-lg font-medium text-white">
-        Select Volume to Enrich
+    <div>
+      <span className="eyebrow mb-4 block">How many to verify</span>
+      <h2
+        className="mb-3"
+        style={{
+          fontFamily: "var(--serif)",
+          fontSize: "clamp(1.4rem, 2.4vw, 2rem)",
+          fontWeight: 300,
+        }}
+      >
+        Choose verification volume
       </h2>
+      <p
+        className="mb-12"
+        style={{
+          fontSize: "1rem",
+          color: "rgba(255,255,255,0.45)",
+          fontWeight: 300,
+        }}
+      >
+        {maxCandidates.toLocaleString()} contacts matched your search.
+        Choose how many to verify with real email addresses.
+      </p>
 
-      <div className="space-y-6">
-        <p className="text-sm text-white/70">
-          Total candidates from query:{" "}
-          <span className="font-semibold text-white">
-            {maxCandidates.toLocaleString()}
+      {/* Volume display */}
+      <div
+        className="mb-10"
+        style={{
+          borderTop: "1px solid var(--line)",
+          borderBottom: "1px solid var(--line)",
+          padding: "2.5rem 0",
+        }}
+      >
+        <div className="flex items-baseline gap-3 mb-8">
+          <span
+            style={{
+              fontFamily: "var(--serif)",
+              fontSize: "clamp(2.5rem, 4vw, 4rem)",
+              fontWeight: 300,
+              lineHeight: 1,
+              color: "var(--wsg-camel)",
+            }}
+          >
+            {enrichCount}
           </span>
-        </p>
-
-        <div>
-          <p className="mb-3 text-sm text-white/80">
-            Enrich{" "}
-            <span className="text-2xl font-bold text-white">{enrichCount}</span>{" "}
-            leads
-          </p>
-          <Slider
-            value={[enrichCount]}
-            onValueChange={(v) => setEnrichCount(Array.isArray(v) ? v[0] : v)}
-            min={10}
-            max={Math.min(maxCandidates, 1000)}
-            step={10}
-          />
-          <div className="mt-2 flex justify-between text-xs text-white/40">
-            <span>10</span>
-            <span>{Math.min(maxCandidates, 1000)}</span>
-          </div>
+          <span className="eyebrow" style={{ color: "rgba(255,255,255,0.4)" }}>
+            Contacts to verify
+          </span>
         </div>
-
-        <Button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full bg-white text-black hover:bg-white/90"
-        >
-          {loading
-            ? "Starting enrichment..."
-            : `Enrich ${enrichCount} leads`}
-        </Button>
+        <Slider
+          value={[enrichCount]}
+          onValueChange={(v) => setEnrichCount(Array.isArray(v) ? v[0] : v)}
+          min={10}
+          max={Math.min(maxCandidates, 1000)}
+          step={10}
+        />
+        <div className="mt-3 flex justify-between">
+          <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.25)" }}>
+            10
+          </span>
+          <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.25)" }}>
+            {Math.min(maxCandidates, 1000).toLocaleString()}
+          </span>
+        </div>
       </div>
+
+      {/* Cost estimate */}
+      <div
+        className="mb-10"
+        style={{
+          padding: "1.25rem 1.5rem",
+          border: "1px solid var(--line)",
+          background: "var(--surface-raised)",
+        }}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)", fontWeight: 300 }}>
+            Estimated cost
+          </span>
+          <span style={{ fontSize: "0.95rem", color: "var(--wsg-camel)", fontWeight: 400 }}>
+            ~{enrichCount} LeadMagic credits
+          </span>
+        </div>
+        <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.3)", fontWeight: 300 }}>
+          1 credit per lookup. Not all lookups find an email — typical hit rate is 40–60%.
+          Expected verified emails: ~{Math.round(enrichCount * 0.5)}
+        </p>
+      </div>
+
+      <button
+        onClick={handleSubmit}
+        disabled={loading}
+        className="wsg-btn-primary w-full disabled:opacity-40"
+      >
+        {loading
+          ? "Starting verification..."
+          : `Verify ${enrichCount} contacts`}
+      </button>
     </div>
   )
 }

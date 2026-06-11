@@ -1,12 +1,34 @@
 import { inngest } from "@/lib/inngest/client"
 import { supabaseServer } from "@/lib/supabase/server"
 import { generateSql, refineSqlWithFeedback } from "@/lib/anthropic/generate-sql"
-import { generateMasterCopy } from "@/lib/anthropic/generate-copy"
+import { generateMasterCopy, generatePersonalization } from "@/lib/anthropic/generate-copy"
 import { runQuery } from "@/lib/bigquery/client"
-import { enrichBatch, extractLeadForEnrichment } from "@/lib/leadmagic/client"
-import type { CampaignBrief, SqlVersion } from "@/types"
+import { enrichBatch, extractLeadForEnrichment, LeadMagicApiError } from "@/lib/leadmagic/client"
+import { pushLeadsToInstantly } from "@/lib/instantly/client"
+import type { CampaignBrief, SqlVersion, Lead, LeadPersonalization } from "@/types"
+import type { InstantlyLead } from "@/lib/instantly/client"
 
 const ENRICH_BATCH_SIZE = 50 // leads per Inngest step (at 5 RPS ≈ 11 seconds)
+const PERSONALIZE_BATCH_SIZE = 10 // leads per Inngest step (Claude API calls)
+const INSTANTLY_PUSH_BATCH_SIZE = 500 // leads per Instantly push (max 1000)
+
+// ── field extraction helpers (shared with leadmagic client) ──────────
+function str(v: unknown): string | null {
+  if (typeof v === "string" && v.trim()) return v.trim()
+  return null
+}
+
+function splitFirst(name: string | null): string | null {
+  if (!name) return null
+  const parts = name.split(/\s+/)
+  return parts[0] || null
+}
+
+function splitLast(name: string | null): string | null {
+  if (!name) return null
+  const parts = name.split(/\s+/)
+  return parts.length > 1 ? parts[parts.length - 1] : null
+}
 
 async function updateCampaign(
   campaignId: string,
@@ -165,6 +187,9 @@ export const runCampaign = inngest.createFunction(
     })
 
     await step.run("store-leads", async () => {
+      // Delete any old leads from previous runs
+      await db.from("leads").delete().eq("campaign_id", campaignId)
+
       const leads = fullResults.rows.map((row) => ({
         campaign_id: campaignId,
         source_data: row,
@@ -205,7 +230,25 @@ export const runCampaign = inngest.createFunction(
     let creditsUsed = 0
     const totalBatches = Math.ceil(allLeads.length / ENRICH_BATCH_SIZE)
 
+    let enrichmentFailed = false
+
     for (let batchIdx = 0; batchIdx < totalBatches; batchIdx++) {
+      // Check for cancellation before each batch
+      const cancelled = await step.run(
+        `check-cancel-${batchIdx}`,
+        async () => {
+          const { data } = await db
+            .from("campaigns")
+            .select("status")
+            .eq("id", campaignId)
+            .single()
+          return data?.status === "cancelled"
+        }
+      )
+      if (cancelled) {
+        return { status: "cancelled", reason: "Cancelled by user during enrichment" }
+      }
+
       const batchStart = batchIdx * ENRICH_BATCH_SIZE
       const batchLeads = allLeads.slice(batchStart, batchStart + ENRICH_BATCH_SIZE)
 
@@ -224,58 +267,97 @@ export const runCampaign = inngest.createFunction(
           const enrichable = requests.filter((r) => r.request !== null)
 
           if (enrichable.length === 0) {
-            return { enriched: 0, valid: 0, credits: 0 }
+            return { enriched: 0, valid: 0, credits: 0, error: null as string | null }
           }
 
-          // Call LeadMagic with rate limiting
-          const results = await enrichBatch(
-            enrichable.map((e) => e.request!)
-          )
+          try {
+            // Call LeadMagic with rate limiting
+            const results = await enrichBatch(
+              enrichable.map((e) => e.request!)
+            )
 
-          // Update each lead in Supabase (uses existing columns only)
-          let batchEnriched = 0
-          let batchValid = 0
-          let batchCredits = 0
+            // Update each lead in Supabase (uses existing columns only)
+            let batchEnriched = 0
+            let batchValid = 0
+            let batchCredits = 0
 
-          for (let i = 0; i < enrichable.length; i++) {
-            const leadId = enrichable[i].leadId
-            const result = results[i]
+            for (let i = 0; i < enrichable.length; i++) {
+              const leadId = enrichable[i].leadId
+              const result = results[i]
 
-            // Update lead with found email (or leave null)
-            if (result.email) {
-              await db
-                .from("leads")
-                .update({
-                  email: result.email,
-                  email_status: result.email_status ?? "unknown",
-                })
-                .eq("id", leadId)
+              // Update lead with found email (or leave null)
+              if (result.email) {
+                await db
+                  .from("leads")
+                  .update({
+                    email: result.email,
+                    email_status: result.email_status ?? "unknown",
+                  })
+                  .eq("id", leadId)
 
-              batchEnriched++
-              if (result.email_status === "valid") batchValid++
+                batchEnriched++
+                if (result.email_status === "valid") batchValid++
+              }
+
+              batchCredits += result.credits_used
+
+              // Log to debug_log for audit trail
+              await db.from("debug_log").insert({
+                campaign_id: campaignId,
+                step: "leadmagic_enrich",
+                prompt: JSON.stringify(enrichable[i].request),
+                response: JSON.stringify(result.raw),
+                model: "leadmagic/email-finder",
+                tokens_in: 0,
+                tokens_out: 0,
+              })
             }
 
-            batchCredits += result.credits_used
+            return {
+              enriched: batchEnriched,
+              valid: batchValid,
+              credits: batchCredits,
+              error: null as string | null,
+            }
+          } catch (err) {
+            // API-wide failure (credits, auth, rate limit, consecutive failures)
+            const reason =
+              err instanceof LeadMagicApiError
+                ? err.userFacingReason
+                : err instanceof Error
+                  ? err.message
+                  : "Unknown enrichment error"
 
-            // Log to debug_log for audit trail
+            // Log the failure
             await db.from("debug_log").insert({
               campaign_id: campaignId,
-              step: "leadmagic_enrich",
-              prompt: JSON.stringify(enrichable[i].request),
-              response: JSON.stringify(result.raw),
+              step: "enrichment_failed",
+              prompt: `Batch ${batchIdx} failed after enriching ${enrichedTotal} leads`,
+              response: JSON.stringify({
+                error: reason,
+                statusCode: err instanceof LeadMagicApiError ? err.statusCode : null,
+                raw: err instanceof Error ? err.message : String(err),
+              }),
               model: "leadmagic/email-finder",
-              tokens_in: 0,
-              tokens_out: 0,
             })
-          }
 
-          return {
-            enriched: batchEnriched,
-            valid: batchValid,
-            credits: batchCredits,
+            // Set campaign to failed with reason
+            await updateCampaign(campaignId, {
+              status: "failed",
+              enriched_count: enrichedTotal,
+              valid_count: validTotal,
+            })
+
+            return { enriched: 0, valid: 0, credits: 0, error: reason }
           }
         }
       )
+
+      // If the batch returned an error, stop enrichment
+      if (batchResult.error) {
+        enrichmentFailed = true
+        break
+      }
 
       enrichedTotal += batchResult.enriched
       validTotal += batchResult.valid
@@ -288,6 +370,16 @@ export const runCampaign = inngest.createFunction(
           valid_count: validTotal,
         })
       })
+    }
+
+    // If enrichment failed, stop the pipeline
+    if (enrichmentFailed) {
+      return {
+        status: "failed",
+        campaignId,
+        enriched: enrichedTotal,
+        valid: validTotal,
+      }
     }
 
     // Log enrichment summary
@@ -355,16 +447,196 @@ export const runCampaign = inngest.createFunction(
     // =========================================================================
     // PHASE 5: Personalization + Push to Instantly
     // =========================================================================
-    await step.run("set-pushing", async () => {
+    await step.run("set-personalizing", async () => {
       await updateCampaign(campaignId, { status: "pushing" })
     })
 
-    // TODO: Per-lead personalization fan-out
-    // TODO: Push to Instantly
+    // ── 5a: Per-lead personalization ──────────────────────────────────────
+    // Only personalize if brief requests it
+    const shouldPersonalize =
+      brief.personalization_depth === "opener" ||
+      brief.personalization_depth === "opener_plus_company"
 
+    if (shouldPersonalize) {
+      // Fetch enriched leads that need personalization
+      const leadsToPersonalize = await step.run(
+        "fetch-leads-for-personalization",
+        async () => {
+          const { data } = await db
+            .from("leads")
+            .select("id, source_data, email")
+            .eq("campaign_id", campaignId)
+            .not("email", "is", null)
+            .is("personalization", null)
+            .order("created_at", { ascending: true })
+          return data ?? []
+        }
+      )
+
+      const totalPBatches = Math.ceil(
+        leadsToPersonalize.length / PERSONALIZE_BATCH_SIZE
+      )
+
+      for (let batchIdx = 0; batchIdx < totalPBatches; batchIdx++) {
+        const batchStart = batchIdx * PERSONALIZE_BATCH_SIZE
+        const batchLeads = leadsToPersonalize.slice(
+          batchStart,
+          batchStart + PERSONALIZE_BATCH_SIZE
+        )
+
+        await step.run(`personalize-batch-${batchIdx}`, async () => {
+          for (const lead of batchLeads) {
+            try {
+              const leadObj: Lead = {
+                id: lead.id as string,
+                campaign_id: campaignId,
+                source_data: lead.source_data as Record<string, unknown>,
+                email: lead.email as string,
+                email_status: null,
+                personalization: null,
+                pushed_to_instantly_at: null,
+                instantly_lead_id: null,
+                created_at: "",
+              }
+
+              const personalization = await generatePersonalization(
+                brief,
+                leadObj
+              )
+
+              await db
+                .from("leads")
+                .update({ personalization })
+                .eq("id", lead.id)
+            } catch (err) {
+              // Log failure but don't block the batch
+              await db.from("debug_log").insert({
+                campaign_id: campaignId,
+                step: "personalization_error",
+                prompt: JSON.stringify(lead.source_data),
+                response:
+                  err instanceof Error ? err.message : "Unknown error",
+                model: "anthropic/claude-sonnet-4-6",
+              })
+            }
+          }
+        })
+      }
+    }
+
+    // ── 5b: Push to Instantly ─────────────────────────────────────────────
+    // Fetch all pushable leads (have email, not yet pushed)
+    const leadsToPush = await step.run("fetch-leads-for-push", async () => {
+      const { data } = await db
+        .from("leads")
+        .select("id, source_data, email, personalization")
+        .eq("campaign_id", campaignId)
+        .not("email", "is", null)
+        .is("pushed_to_instantly_at", null)
+        .order("created_at", { ascending: true })
+      return data ?? []
+    })
+
+    const instantlyCampaignId = brief.instantly_campaign_id
+    let totalPushed = 0
+
+    if (leadsToPush.length > 0 && instantlyCampaignId) {
+      const totalPushBatches = Math.ceil(
+        leadsToPush.length / INSTANTLY_PUSH_BATCH_SIZE
+      )
+
+      for (let batchIdx = 0; batchIdx < totalPushBatches; batchIdx++) {
+        const batchStart = batchIdx * INSTANTLY_PUSH_BATCH_SIZE
+        const batchLeads = leadsToPush.slice(
+          batchStart,
+          batchStart + INSTANTLY_PUSH_BATCH_SIZE
+        )
+
+        const pushResult = await step.run(
+          `push-instantly-batch-${batchIdx}`,
+          async () => {
+            // Format leads for Instantly
+            const instantlyLeads: InstantlyLead[] = batchLeads.map((lead) => {
+              const src = lead.source_data as Record<string, unknown>
+              const personalization =
+                lead.personalization as LeadPersonalization | null
+
+              // Extract name fields from source data
+              const firstName =
+                str(src.first_name) ||
+                str(src.person_first_name_unanalyzed) ||
+                splitFirst(str(src.full_name) || str(src.person_name))
+              const lastName =
+                str(src.last_name) ||
+                str(src.person_last_name_unanalyzed) ||
+                splitLast(str(src.full_name) || str(src.person_name))
+              const companyName =
+                str(src.company_name) ||
+                str(src.sanitized_organization_name_unanalyzed)
+              const jobTitle =
+                str(src.title) ||
+                str(src.person_title) ||
+                str(src.job_title)
+
+              return {
+                email: lead.email as string,
+                first_name: firstName,
+                last_name: lastName,
+                company_name: companyName,
+                job_title: jobTitle,
+                custom_variables: {
+                  first_line: personalization?.first_line ?? "",
+                  company_note: personalization?.company_note ?? "",
+                  first_name: firstName ?? "",
+                  company_name: companyName ?? "",
+                },
+              }
+            })
+
+            const result = await pushLeadsToInstantly(
+              instantlyCampaignId,
+              instantlyLeads
+            )
+
+            // Mark leads as pushed
+            const pushedAt = new Date().toISOString()
+            const leadIds = batchLeads.map((l) => l.id as string)
+            for (let i = 0; i < leadIds.length; i += 100) {
+              const chunk = leadIds.slice(i, i + 100)
+              await db
+                .from("leads")
+                .update({ pushed_to_instantly_at: pushedAt })
+                .in("id", chunk)
+            }
+
+            return { pushed: batchLeads.length, result }
+          }
+        )
+
+        totalPushed += pushResult.pushed
+      }
+
+      // Log push summary
+      await step.run("log-push-summary", async () => {
+        await db.from("debug_log").insert({
+          campaign_id: campaignId,
+          step: "instantly_push_complete",
+          prompt: `${leadsToPush.length} leads to push`,
+          response: JSON.stringify({
+            total: leadsToPush.length,
+            pushed: totalPushed,
+            instantly_campaign_id: instantlyCampaignId,
+          }),
+          model: "instantly/v2",
+        })
+      })
+    }
+
+    // ── Complete ──────────────────────────────────────────────────────────
     await step.run("complete", async () => {
       await updateCampaign(campaignId, {
         status: "completed",
+        instantly_campaign_id: instantlyCampaignId || null,
         completed_at: new Date().toISOString(),
       })
     })
@@ -374,6 +646,8 @@ export const runCampaign = inngest.createFunction(
       campaignId,
       enriched: enrichedTotal,
       valid: validTotal,
+      personalized: shouldPersonalize ? leadsToPush.length : 0,
+      pushed: totalPushed,
     }
   }
 )

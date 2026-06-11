@@ -2,8 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { submitCopyReview } from "@/app/c/[id]/actions"
 import type { Campaign } from "@/types"
 
@@ -16,70 +14,147 @@ export function CopyReview({ campaign }: { campaign: Campaign }) {
   async function handleApprove() {
     setLoading(true)
     await submitCopyReview(campaign.id, "approve")
-    router.refresh()
+
+    // Poll until status changes from awaiting_copy_review
+    const poll = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/campaign/${campaign.id}/progress`, {
+          cache: "no-store",
+        })
+        if (res.ok) {
+          const d = await res.json()
+          if (d.status !== "awaiting_copy_review") {
+            clearInterval(poll)
+            router.refresh()
+          }
+        }
+      } catch {
+        // keep polling
+      }
+    }, 2000)
   }
 
   async function handleReject() {
     setLoading(true)
     await submitCopyReview(campaign.id, "reject")
-    router.refresh()
+
+    const poll = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/campaign/${campaign.id}/progress`, {
+          cache: "no-store",
+        })
+        if (res.ok) {
+          const d = await res.json()
+          if (d.status !== "awaiting_copy_review") {
+            clearInterval(poll)
+            router.refresh()
+          }
+        }
+      } catch {
+        // keep polling
+      }
+    }, 2000)
   }
 
   if (!masterCopy?.steps) {
     return (
-      <div className="flex items-center gap-3 py-12 text-white/50">
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#BE7B44]/30 border-t-[#BE7B44]" />
-        Generating copy...
+      <div className="flex items-center gap-4 py-16">
+        <div className="wsg-spinner" />
+        <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 300 }}>
+          Generating copy...
+        </span>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Email cards — camel bg with dark email previews */}
-      <div className="rounded-xl bg-[#BE7B44] p-6">
-        <h2 className="mb-5 text-lg font-medium text-white">Email Sequence</h2>
-        <div className="space-y-4">
-          {masterCopy.steps.map((step, i) => (
-            <div
-              key={i}
-              className="rounded-lg bg-black/20 p-5"
-            >
-              <div className="mb-3 flex items-center gap-2">
-                <Badge className="border-0 bg-white/20 text-white text-xs">
-                  Step {i + 1}
-                </Badge>
-                <span className="text-xs text-white/50">
-                  {step.delay_days === 0
-                    ? "Send immediately"
-                    : `+${step.delay_days} days`}
-                </span>
-              </div>
-              <p className="mb-2 font-medium text-white">{step.subject}</p>
-              <pre className="whitespace-pre-wrap text-sm text-white/70">
-                {step.body}
-              </pre>
+    <div>
+      <span className="eyebrow mb-4 block">Copy Review</span>
+      <h2
+        className="mb-12"
+        style={{
+          fontFamily: "var(--serif)",
+          fontSize: "clamp(1.4rem, 2.4vw, 2rem)",
+          fontWeight: 300,
+        }}
+      >
+        Email Sequence
+      </h2>
+
+      {/* Email steps — numbered like services on main site */}
+      <div style={{ borderTop: "1px solid var(--line)" }}>
+        {masterCopy.steps.map((step, i) => (
+          <div
+            key={i}
+            style={{
+              borderBottom: "1px solid var(--line)",
+              padding: "2.5rem 0",
+            }}
+          >
+            <div className="mb-4 flex items-center gap-4">
+              <span
+                style={{
+                  fontFamily: "var(--serif)",
+                  fontSize: "0.85rem",
+                  fontStyle: "italic",
+                  color: "var(--wsg-muted)",
+                }}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span
+                className="eyebrow"
+                style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.62rem" }}
+              >
+                {step.delay_days === 0
+                  ? "Send Immediately"
+                  : `+${step.delay_days} Days`}
+              </span>
             </div>
-          ))}
-        </div>
+            <h3
+              className="mb-4"
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: "1.35rem",
+                fontWeight: 300,
+                letterSpacing: "-0.005em",
+              }}
+            >
+              {step.subject}
+            </h3>
+            <pre
+              style={{
+                fontFamily: "var(--sans)",
+                fontSize: "0.92rem",
+                fontWeight: 300,
+                lineHeight: 1.8,
+                color: "rgba(255,255,255,0.6)",
+                whiteSpace: "pre-wrap",
+                maxWidth: "56ch",
+              }}
+            >
+              {step.body}
+            </pre>
+          </div>
+        ))}
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3">
-        <Button
+      <div className="mt-10 flex gap-4">
+        <button
           onClick={handleApprove}
           disabled={loading}
-          className="bg-[#BE7B44] text-white hover:bg-[#A86A37]"
+          className="wsg-btn-primary disabled:opacity-40"
         >
-          Approve & Push to Instantly
-        </Button>
-        <Button
+          Approve &amp; Push to Instantly
+        </button>
+        <button
           onClick={handleReject}
           disabled={loading}
-          className="border border-white/10 bg-transparent text-white/60 hover:bg-white/5 hover:text-white"
+          className="wsg-btn-muted disabled:opacity-40"
         >
-          Reject & Cancel
-        </Button>
+          Reject &amp; Cancel
+        </button>
       </div>
     </div>
   )

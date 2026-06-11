@@ -1,40 +1,40 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { supabaseServer } from "@/lib/supabase/server"
-import { Badge } from "@/components/ui/badge"
 import type { Campaign, CampaignStatus } from "@/types"
-import { RefreshButton } from "@/components/campaign/refresh-button"
 import { SqlReview } from "@/components/campaign/sql-review"
 import { VolumePicker } from "@/components/campaign/volume-picker"
 import { CopyReview } from "@/components/campaign/copy-review"
 import { PushStatus } from "@/components/campaign/push-status"
+import { LiveProgress } from "@/components/campaign/live-progress"
+import { PipelineStepper } from "@/components/campaign/pipeline-stepper"
 
 export const dynamic = "force-dynamic"
 
 const statusLabels: Record<CampaignStatus, string> = {
-  draft: "Draft",
-  awaiting_sql_review: "Review Query",
-  querying: "Querying",
-  awaiting_volume: "Pick Volume",
-  enriching: "Enriching",
-  awaiting_copy_review: "Review Copy",
-  pushing: "Pushing",
-  completed: "Completed",
+  draft: "Starting",
+  awaiting_sql_review: "Review Audience",
+  querying: "Finding Contacts",
+  awaiting_volume: "Choose Volume",
+  enriching: "Verifying Emails",
+  awaiting_copy_review: "Review Sequence",
+  pushing: "Sending to Instantly",
+  completed: "Complete",
   failed: "Failed",
-  cancelled: "Cancelled",
+  cancelled: "Stopped",
 }
 
-const statusBadge: Record<CampaignStatus, string> = {
-  draft: "border-white/20 text-white/50",
-  awaiting_sql_review: "border-[#BE7B44] text-[#BE7B44]",
-  querying: "border-[#7FB5CB] text-[#7FB5CB]",
-  awaiting_volume: "border-[#BE7B44] text-[#BE7B44]",
-  enriching: "border-[#7FB5CB] text-[#7FB5CB]",
-  awaiting_copy_review: "border-[#BE7B44] text-[#BE7B44]",
-  pushing: "border-[#7FB5CB] text-[#7FB5CB]",
-  completed: "border-[#2D500D] text-[#5A9A2F]",
-  failed: "border-[#C30319] text-[#C30319]",
-  cancelled: "border-white/20 text-white/50",
+const statusAccent: Record<CampaignStatus, string> = {
+  draft: "rgba(255,255,255,0.3)",
+  awaiting_sql_review: "#BE7B44",
+  querying: "#7FB5CB",
+  awaiting_volume: "#BE7B44",
+  enriching: "#7FB5CB",
+  awaiting_copy_review: "#BE7B44",
+  pushing: "#7FB5CB",
+  completed: "#2D500D",
+  failed: "#C30319",
+  cancelled: "rgba(255,255,255,0.2)",
 }
 
 export default async function CampaignDetailPage({
@@ -56,57 +56,70 @@ export default async function CampaignDetailPage({
   const c = campaign as Campaign
 
   return (
-    <div className="container max-w-4xl py-10">
-      {/* Header area — on black bg */}
-      <div className="mb-8 flex items-center justify-between">
+    <div
+      className="mx-auto w-full max-w-[1400px]"
+      style={{ padding: "clamp(3rem, 8vw, 6rem) clamp(1.25rem, 5vw, 6rem)" }}
+    >
+      {/* Back link */}
+      <Link
+        href="/"
+        className="nav-link eyebrow mb-12 inline-block"
+        style={{ color: "rgba(255,255,255,0.35)" }}
+      >
+        &larr; Back to campaigns
+      </Link>
+
+      {/* Campaign header */}
+      <div className="mb-16 flex items-end justify-between">
         <div>
-          <Link
-            href="/"
-            className="mb-2 block text-sm text-white/30 transition-colors hover:text-white"
+          <span className="eyebrow mb-4 block">Campaign</span>
+          <h1 style={{ fontSize: "clamp(2rem, 4.2vw, 3.2rem)" }}>{c.name}</h1>
+          <p
+            className="mt-3"
+            style={{
+              fontSize: "1rem",
+              color: "rgba(255,255,255,0.45)",
+              fontWeight: 300,
+              maxWidth: "48ch",
+            }}
           >
-            &larr; Back to campaigns
-          </Link>
-          <h1 className="text-3xl tracking-tight text-white">{c.name}</h1>
-          <p className="mt-1 text-sm text-white/50">{c.brief.persona}</p>
+            {c.brief.persona}
+          </p>
         </div>
-        <Badge
-          variant="outline"
-          className={`text-sm ${statusBadge[c.status]}`}
+        <span
+          style={{
+            fontFamily: "var(--sans)",
+            fontSize: "0.72rem",
+            fontWeight: 500,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: statusAccent[c.status],
+          }}
         >
           {statusLabels[c.status]}
-        </Badge>
+        </span>
       </div>
 
-      {/* Active review stages — components handle their own camel cards */}
+      {/* Pipeline stepper */}
+      <PipelineStepper status={c.status} />
+
+      {/* Divider */}
+      <hr className="wsg-divider mb-12" />
+
+      {/* Active review stages */}
       {c.status === "awaiting_sql_review" && <SqlReview campaign={c} />}
       {c.status === "awaiting_volume" && <VolumePicker campaign={c} />}
       {c.status === "awaiting_copy_review" && <CopyReview campaign={c} />}
-      {(c.status === "pushing" || c.status === "completed") && (
-        <PushStatus campaign={c} />
-      )}
+      {c.status === "completed" && <PushStatus campaign={c} />}
 
-      {/* Processing states — black bg with subtle spinner */}
+      {/* Processing states + error/cancelled — live progress polling */}
       {(c.status === "draft" ||
         c.status === "querying" ||
-        c.status === "enriching") && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/10 py-20">
-          <div className="mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#BE7B44]/30 border-t-[#BE7B44]" />
-          <p className="text-lg text-white/70">
-            {statusLabels[c.status]}
-          </p>
-          <p className="mt-1 text-sm text-white/30">
-            This page will update when the next step is ready.
-          </p>
-          <RefreshButton />
-        </div>
-      )}
-
-      {(c.status === "failed" || c.status === "cancelled") && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#C30319]/20 py-20">
-          <p className="text-lg text-white/50">
-            Campaign {c.status}
-          </p>
-        </div>
+        c.status === "enriching" ||
+        c.status === "pushing" ||
+        c.status === "failed" ||
+        c.status === "cancelled") && (
+        <LiveProgress campaignId={c.id} />
       )}
     </div>
   )

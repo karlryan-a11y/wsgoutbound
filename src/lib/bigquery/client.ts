@@ -8,13 +8,24 @@ export function getBigQueryClient(): BigQuery {
   const projectId = process.env.GCP_PROJECT_ID
   if (!projectId) throw new Error("Missing GCP_PROJECT_ID")
 
-  // Uses Application Default Credentials (ADC) locally
-  // For Vercel, set GCP_SERVICE_ACCOUNT_JSON env var
-  const serviceAccountJson = process.env.GCP_SERVICE_ACCOUNT_JSON
-  if (serviceAccountJson) {
-    const credentials = JSON.parse(serviceAccountJson)
-    _client = new BigQuery({ projectId, credentials })
+  // For Vercel/production: set GCP_SERVICE_ACCOUNT_JSON env var
+  // Supports both service_account and authorized_user credential types
+  const credJson = process.env.GCP_SERVICE_ACCOUNT_JSON
+  if (credJson) {
+    const parsed = JSON.parse(credJson)
+
+    if (parsed.type === "authorized_user") {
+      // Write to temp file so Google Auth SDK can pick it up via ADC
+      const fs = require("fs")
+      const tmpPath = "/tmp/gcp-credentials.json"
+      fs.writeFileSync(tmpPath, credJson)
+      process.env.GOOGLE_APPLICATION_CREDENTIALS = tmpPath
+      _client = new BigQuery({ projectId })
+    } else {
+      _client = new BigQuery({ projectId, credentials: parsed })
+    }
   } else {
+    // Uses Application Default Credentials (ADC) locally
     _client = new BigQuery({ projectId })
   }
 

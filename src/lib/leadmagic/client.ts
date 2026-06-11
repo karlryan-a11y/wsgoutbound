@@ -35,6 +35,34 @@ export type EnrichmentResult = {
   email_status: "valid" | "risky" | "invalid" | "catch_all" | "unknown" | null
   credits_used: number
   raw: EmailFinderResponse
+  error?: string
+}
+
+/** Thrown when LeadMagic returns an API-wide error (credits, auth, rate limit) */
+export class LeadMagicApiError extends Error {
+  constructor(
+    public statusCode: number,
+    message: string
+  ) {
+    super(message)
+    this.name = "LeadMagicApiError"
+  }
+
+  get userFacingReason(): string {
+    if (this.statusCode === 402 || this.statusCode === 403) {
+      return "Out of LeadMagic credits — top up at leadmagic.io/billing"
+    }
+    if (this.statusCode === 429) {
+      return "LeadMagic rate limit exceeded — try again in a few minutes"
+    }
+    if (this.statusCode === 401) {
+      return "LeadMagic API key is invalid or expired"
+    }
+    if (this.statusCode >= 500) {
+      return "LeadMagic service is temporarily unavailable"
+    }
+    return `LeadMagic API error (${this.statusCode})`
+  }
 }
 
 // ── core fetch ─────────────────────────────────────────────────────────
@@ -44,7 +72,7 @@ async function leadmagicFetch<T>(
   body: Record<string, unknown>
 ): Promise<T> {
   const apiKey = process.env.LEADMAGIC_API_KEY
-  if (!apiKey) throw new Error("Missing LEADMAGIC_API_KEY")
+  if (!apiKey) throw new LeadMagicApiError(401, "Missing LEADMAGIC_API_KEY env var")
 
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "POST",
@@ -57,6 +85,11 @@ async function leadmagicFetch<T>(
 
   if (!res.ok) {
     const text = await res.text()
+    // API-wide errors that should stop the whole enrichment
+    if ([401, 402, 403, 429].includes(res.status) || res.status >= 500) {
+      throw new LeadMagicApiError(res.status, `LeadMagic ${res.status}: ${text}`)
+    }
+    // Per-lead errors (400, 404, etc.) — throw generic so findEmail can catch
     throw new Error(`LeadMagic ${res.status}: ${text}`)
   }
 
@@ -81,10 +114,14 @@ export async function findEmail(
       raw,
     }
   } catch (err) {
+    // Re-throw API-wide errors (credits, auth, rate limit) so batch stops
+    if (err instanceof LeadMagicApiError) throw err
+
     return {
       email: null,
       email_status: null,
       credits_used: 0,
+      error: err instanceof Error ? err.message : "Unknown error",
       raw: {
         email: null,
         status: null,
@@ -101,22 +138,43 @@ function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms))
 }
 
+/** Max consecutive leads that return null before we flag a potential issue */
+const MAX_CONSECUTIVE_FAILURES = 20
+
 /**
  * Enrich a batch of leads with rate limiting.
  * Processes up to RPS_LIMIT per second.
  * Returns results in the same order as input.
+ * Throws LeadMagicApiError for API-wide issues (credits, auth, etc.)
  */
 export async function enrichBatch(
   leads: EmailFinderRequest[]
 ): Promise<EnrichmentResult[]> {
   const results: EnrichmentResult[] = []
+  let consecutiveFailures = 0
 
   for (let i = 0; i < leads.length; i += RPS_LIMIT) {
     const chunk = leads.slice(i, i + RPS_LIMIT)
 
-    // Fire chunk concurrently
+    // Fire chunk concurrently — LeadMagicApiError will propagate up
     const chunkResults = await Promise.all(chunk.map((lead) => findEmail(lead)))
     results.push(...chunkResults)
+
+    // Track consecutive failures (all results in chunk have errors)
+    const allFailed = chunkResults.every((r) => r.email === null && r.error)
+    if (allFailed) {
+      consecutiveFailures += chunkResults.length
+    } else {
+      consecutiveFailures = 0
+    }
+
+    if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+      const lastErr = chunkResults.find((r) => r.error)?.error ?? "Unknown"
+      throw new LeadMagicApiError(
+        0,
+        `${consecutiveFailures} consecutive enrichment failures — last error: ${lastErr}`
+      )
+    }
 
     // Rate limit: wait 1 second between chunks (unless last chunk)
     if (i + RPS_LIMIT < leads.length) {

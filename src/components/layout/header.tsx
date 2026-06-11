@@ -6,48 +6,51 @@ import { UserButton } from "@clerk/nextjs"
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-black">
-      <div className="container flex h-16 max-w-6xl items-center justify-between">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-3">
-            <Image
-              src="/logos/W_Icon_White.svg"
-              alt="WSG"
-              width={56}
-              height={56}
-            />
-            <span className="text-xs font-medium tracking-[0.25em] text-[#BE7B44]">
-              OUTBOUND
-            </span>
+    <header className="sticky top-0 z-50 border-b transition-all duration-500"
+      style={{ borderColor: "var(--line)", background: "var(--wsg-black)" }}
+    >
+      <div className="mx-auto flex h-24 max-w-[1400px] items-center justify-between"
+        style={{ padding: "0 clamp(1.25rem, 5vw, 6rem)" }}
+      >
+        {/* Logo + wordmark */}
+        <Link href="/" className="flex items-center gap-3">
+          <Image
+            src="/logos/W_Icon_White.svg"
+            alt="Watson Style Group"
+            width={108}
+            height={108}
+            className="opacity-90 transition-opacity duration-300 hover:opacity-100"
+          />
+        </Link>
+
+        {/* Nav links — centered, matching main site nav style */}
+        <nav className="hidden items-center md:flex"
+          style={{ gap: "clamp(1.25rem, 2.6vw, 3rem)" }}
+        >
+          <Link href="/" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/60 transition-colors duration-300 hover:!text-white">
+            Campaigns
           </Link>
-          <nav className="hidden items-center gap-5 text-sm md:flex">
-            <Link
-              href="/"
-              className="text-white/50 transition-colors hover:text-white"
-            >
-              Campaigns
-            </Link>
-            <Link
-              href="/knowledge"
-              className="text-white/50 transition-colors hover:text-white"
-            >
-              Knowledge
-            </Link>
-            <Link
-              href="/instructions"
-              className="text-white/50 transition-colors hover:text-white"
-            >
-              Rules
-            </Link>
-          </nav>
+          <Link href="/knowledge" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/60 transition-colors duration-300 hover:!text-white">
+            Knowledge
+          </Link>
+          <Link href="/instructions" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/60 transition-colors duration-300 hover:!text-white">
+            Rules
+          </Link>
+          <Link href="/settings" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/60 transition-colors duration-300 hover:!text-white">
+            Settings
+          </Link>
+        </nav>
+
+        {/* CTA + User */}
+        <div className="flex items-center gap-6">
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: "h-8 w-8",
+              },
+            }}
+          />
         </div>
-        <UserButton
-          appearance={{
-            elements: {
-              avatarBox: "h-8 w-8",
-            },
-          }}
-        />
       </div>
     </header>
   )

@@ -16,14 +16,24 @@ export async function generateSql(
 }> {
   const client = getAnthropicClient()
 
-  // Retrieve relevant knowledge for context
-  const knowledge = await retrieveKnowledge(brief.persona, {
-    limit: 5,
-    type: "doc",
-  })
+  // Retrieve relevant knowledge for context (non-blocking)
+  let knowledge: Awaited<ReturnType<typeof retrieveKnowledge>> = []
+  try {
+    knowledge = await retrieveKnowledge(brief.persona, {
+      limit: 5,
+      type: "doc",
+    })
+  } catch (e) {
+    console.error("[generate-sql] knowledge retrieval failed:", e)
+  }
 
-  // Get active filter instructions
-  const instructions = await getActiveInstructions("filter")
+  // Get active filter instructions (non-blocking)
+  let instructions: Awaited<ReturnType<typeof getActiveInstructions>> = []
+  try {
+    instructions = await getActiveInstructions("filter")
+  } catch (e) {
+    console.error("[generate-sql] instructions retrieval failed:", e)
+  }
 
   const feedbackContext = previousVersions?.length
     ? `\n\nPREVIOUS ATTEMPTS:\n${previousVersions
@@ -71,7 +81,7 @@ Always filter for records with email IS NOT NULL when the goal is outbound.`
 
   const response = await client.messages.create({
     model: DEFAULT_MODEL,
-    max_tokens: 2000,
+    max_tokens: 8192,
     system,
     messages: [{ role: "user", content: JSON.stringify(brief) }],
   })
@@ -92,10 +102,37 @@ Always filter for records with email IS NOT NULL when the goal is outbound.`
     })
   }
 
-  // Parse JSON from response
-  const jsonMatch = text.match(/\{[\s\S]*\}/)
+  // Log raw response for debugging
+  const db2 = supabaseServer()
+  await db2.from("debug_log").insert({
+    step: "generate_sql_raw",
+    prompt: `Response length: ${text.length}, stop_reason: ${response.stop_reason}`,
+    response: text.slice(0, 4000),
+    model: DEFAULT_MODEL,
+    tokens_in: response.usage.input_tokens,
+    tokens_out: response.usage.output_tokens,
+  })
+
+  // If response was truncated, throw a clear error
+  if (response.stop_reason === "max_tokens") {
+    throw new Error(
+      `SQL generation response truncated (max_tokens reached). Output was ${text.length} chars. Increase max_tokens.`
+    )
+  }
+
+  // Parse JSON from response — handle markdown code blocks
+  let jsonText = text
+  // Strip markdown code fences if present
+  const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+  if (codeBlockMatch) {
+    jsonText = codeBlockMatch[1]
+  }
+
+  const jsonMatch = jsonText.match(/\{[\s\S]*\}/)
   if (!jsonMatch) {
-    throw new Error("Failed to parse SQL generation response as JSON")
+    throw new Error(
+      `Failed to parse SQL generation response as JSON. Response (first 500 chars): ${text.slice(0, 500)}`
+    )
   }
 
   const parsed = JSON.parse(jsonMatch[0])
