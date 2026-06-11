@@ -27,13 +27,13 @@ const TYPE_LABELS: Record<KnowledgeType, string> = {
 
 const TYPE_ORDER: KnowledgeType[] = ["brand", "case_study", "email_sample", "doc", "note", "transcript"]
 
-const TYPE_COLORS: Record<KnowledgeType, string> = {
-  brand: "var(--wsg-camel)",
-  case_study: "var(--wsg-blue)",
-  email_sample: "var(--wsg-green)",
-  doc: "rgba(0, 0, 0,0.4)",
-  note: "var(--wsg-butter)",
-  transcript: "var(--wsg-blush)",
+const TYPE_PILL: Record<KnowledgeType, string> = {
+  brand: "pill--camel",
+  case_study: "pill--blue",
+  email_sample: "pill--green",
+  doc: "pill--muted",
+  note: "pill--butter",
+  transcript: "pill--blush",
 }
 
 const inputStyle: React.CSSProperties = {
@@ -64,21 +64,7 @@ function formatDate(iso: string) {
 }
 
 function TypeBadge({ type }: { type: KnowledgeType }) {
-  return (
-    <span
-      className="eyebrow"
-      style={{
-        fontSize: "0.62rem",
-        letterSpacing: "0.24em",
-        color: TYPE_COLORS[type],
-        border: `1px solid ${TYPE_COLORS[type]}`,
-        padding: "0.25rem 0.6rem",
-        opacity: 0.85,
-      }}
-    >
-      {TYPE_LABELS[type]}
-    </span>
-  )
+  return <span className={`pill ${TYPE_PILL[type]}`}>{TYPE_LABELS[type]}</span>
 }
 
 export default function KnowledgePage() {
@@ -198,19 +184,24 @@ export default function KnowledgePage() {
       <Link
         href="/"
         className="nav-link eyebrow mb-12 inline-block"
-        style={{ color: "rgba(0, 0, 0,0.35)" }}
+        style={{ color: "rgba(0, 0, 0,0.5)" }}
       >
         &larr; Back
       </Link>
 
-      <div className="mb-4 flex items-end justify-between gap-6">
+      <div
+        className="accent-block mb-10 flex items-end justify-between gap-6"
+        style={{ padding: "clamp(1.5rem, 3vw, 2.25rem) clamp(1.5rem, 3vw, 2.25rem)" }}
+      >
         <div>
-          <span className="eyebrow mb-4 block">Reference Library</span>
+          <p className="eyebrow-num mb-4">
+            <b>—</b> Reference Library
+          </p>
           <h1 style={{ fontSize: "clamp(2rem, 4.2vw, 3.2rem)" }}>Knowledge</h1>
         </div>
         <button
-          className="wsg-btn-ghost shrink-0"
-          style={{ color: "var(--ink)" }}
+          className={showForm ? "wsg-btn-ghost shrink-0" : "wsg-btn-camel shrink-0"}
+          style={showForm ? { color: "var(--ink)" } : undefined}
           onClick={() => setShowForm((s) => !s)}
         >
           {showForm ? "Close" : "Add Entry"}
@@ -304,7 +295,7 @@ export default function KnowledgePage() {
 
       {/* List */}
       {loading ? (
-        <p style={{ color: "rgba(0, 0, 0,0.35)", fontWeight: 300 }}>Loading…</p>
+        <p style={{ color: "rgba(0, 0, 0,0.5)", fontWeight: 300 }}>Loading…</p>
       ) : entries.length === 0 ? (
         <div
           className="wsg-surface"
@@ -399,7 +390,7 @@ export default function KnowledgePage() {
                             >
                               <div className="mb-2 flex items-center gap-3">
                                 <TypeBadge type={entry.type} />
-                                <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.3)" }}>
+                                <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.46)" }}>
                                   {formatDate(entry.updated_at || entry.created_at)}
                                 </span>
                               </div>

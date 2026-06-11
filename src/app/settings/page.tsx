@@ -63,17 +63,22 @@ export default function SettingsPage() {
       <Link
         href="/"
         className="nav-link eyebrow mb-12 inline-block"
-        style={{ color: "rgba(0, 0, 0,0.35)" }}
+        style={{ color: "rgba(0, 0, 0,0.5)" }}
       >
         &larr; Back
       </Link>
 
-      <div className="mb-16 flex items-end justify-between gap-6">
+      <div
+        className="accent-block mb-14 flex items-end justify-between gap-6"
+        style={{ padding: "clamp(1.5rem, 3vw, 2.25rem)" }}
+      >
         <div>
-          <span className="eyebrow mb-4 block">System</span>
+          <p className="eyebrow-num mb-4">
+            <b>—</b> System
+          </p>
           <h1 style={{ fontSize: "clamp(2rem, 4.2vw, 3.2rem)" }}>Settings</h1>
         </div>
-        <button className="wsg-btn-ghost shrink-0" style={{ color: "var(--ink)" }} onClick={check} disabled={loading}>
+        <button className="wsg-btn-camel shrink-0" onClick={check} disabled={loading}>
           {loading ? "Checking…" : "Check All"}
         </button>
       </div>
@@ -85,7 +90,7 @@ export default function SettingsPage() {
             Integration Health
           </h2>
           {data?.checkedAt && (
-            <p style={{ fontSize: "0.78rem", color: "rgba(0, 0, 0,0.3)", fontWeight: 300, marginTop: "0.35rem" }}>
+            <p style={{ fontSize: "0.78rem", color: "rgba(0, 0, 0,0.46)", fontWeight: 300, marginTop: "0.35rem" }}>
               Last checked {new Date(data.checkedAt).toLocaleTimeString("en-US")}
             </p>
           )}
@@ -117,7 +122,7 @@ export default function SettingsPage() {
                       <span style={{ fontSize: "1rem", fontWeight: 400, color: "var(--ink)" }}>{c.name}</span>
                     </div>
                     {typeof c.latencyMs === "number" && (
-                      <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.3)" }}>{c.latencyMs}ms</span>
+                      <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.46)" }}>{c.latencyMs}ms</span>
                     )}
                   </div>
                   <p
@@ -141,7 +146,7 @@ export default function SettingsPage() {
           <h2 style={{ fontFamily: "var(--serif)", fontSize: "1.4rem", fontWeight: 300 }}>
             Environment Variables
           </h2>
-          <p style={{ fontSize: "0.8rem", color: "rgba(0, 0, 0,0.35)", fontWeight: 300, marginTop: "0.35rem" }}>
+          <p style={{ fontSize: "0.8rem", color: "rgba(0, 0, 0,0.5)", fontWeight: 300, marginTop: "0.35rem" }}>
             Configured server-side. Values are never exposed.
           </p>
         </div>
@@ -164,22 +169,13 @@ export default function SettingsPage() {
               >
                 {env.key}
               </span>
-              <span
-                className="eyebrow"
-                style={{
-                  fontSize: "0.62rem",
-                  letterSpacing: "0.24em",
-                  color: env.set ? "var(--wsg-green)" : "var(--wsg-red)",
-                  border: `1px solid ${env.set ? "var(--wsg-green)" : "var(--wsg-red)"}`,
-                  padding: "0.22rem 0.6rem",
-                }}
-              >
+              <span className={`pill ${env.set ? "pill--green" : "pill--red"}`}>
                 {env.set ? "Set" : "Missing"}
               </span>
             </div>
           ))}
           {!loading && (!data?.envStatus || data.envStatus.length === 0) && (
-            <p style={{ fontSize: "0.85rem", color: "rgba(0, 0, 0,0.3)", fontWeight: 300 }}>
+            <p style={{ fontSize: "0.85rem", color: "rgba(0, 0, 0,0.46)", fontWeight: 300 }}>
               Unable to read environment status.
             </p>
           )}

@@ -1,35 +1,10 @@
 import Link from "next/link"
 import { supabaseServer } from "@/lib/supabase/server"
-import type { Campaign, CampaignStatus } from "@/types"
+import type { Campaign } from "@/types"
 import { NLInput } from "@/components/campaign/nl-input"
+import { StatusPill } from "@/components/ui/status-pill"
 
 export const dynamic = "force-dynamic"
-
-const statusLabels: Record<CampaignStatus, string> = {
-  draft: "Starting",
-  awaiting_sql_review: "Review Audience",
-  querying: "Finding Contacts",
-  awaiting_volume: "Choose Volume",
-  enriching: "Verifying Emails",
-  awaiting_copy_review: "Review Sequence",
-  pushing: "Sending to Instantly",
-  completed: "Complete",
-  failed: "Failed",
-  cancelled: "Stopped",
-}
-
-const statusAccent: Record<CampaignStatus, string> = {
-  draft: "rgba(0, 0, 0,0.3)",
-  awaiting_sql_review: "#BE7B44",
-  querying: "#7FB5CB",
-  awaiting_volume: "#BE7B44",
-  enriching: "#7FB5CB",
-  awaiting_copy_review: "#BE7B44",
-  pushing: "#7FB5CB",
-  completed: "#2D500D",
-  failed: "#C30319",
-  cancelled: "rgba(0, 0, 0,0.2)",
-}
 
 export default async function DashboardPage() {
   const db = supabaseServer()
@@ -40,74 +15,91 @@ export default async function DashboardPage() {
     .limit(50)
 
   const hasCampaigns = campaigns && campaigns.length > 0
+  const list = (campaigns as Campaign[]) ?? []
 
   return (
-    <div className="mx-auto w-full max-w-[1400px]"
-      style={{ padding: "clamp(3rem, 8vw, 6rem) clamp(1.25rem, 5vw, 6rem)" }}
+    <div
+      className="mx-auto w-full max-w-[1400px]"
+      style={{ padding: "clamp(2.5rem, 6vw, 5rem) clamp(1.25rem, 5vw, 6rem)" }}
     >
-      {/* NL front door */}
-      <div className="mb-20">
-        <span className="eyebrow mb-4 block">New Campaign</span>
-        <h1 className="mb-6" style={{ fontSize: "clamp(2rem, 4.2vw, 3.2rem)" }}>
+      {/* ── NL front door — blush accent block ───────────────────────── */}
+      <div
+        className="accent-block mb-20"
+        style={{ padding: "clamp(2rem, 4vw, 3.5rem) clamp(1.5rem, 4vw, 3.5rem)" }}
+      >
+        <p className="eyebrow-num mb-5">
+          <b>01</b> New Campaign
+        </p>
+        <h1
+          className="mb-5"
+          style={{ fontSize: "clamp(2.1rem, 4.6vw, 3.6rem)", maxWidth: "16ch" }}
+        >
           Describe your audience
         </h1>
         <p
-          className="mb-10"
+          className="mb-9"
           style={{
-            fontSize: "1.05rem",
-            color: "rgba(0, 0, 0,0.45)",
+            fontSize: "1.08rem",
+            color: "var(--ink-soft)",
             fontWeight: 300,
             maxWidth: "52ch",
+            lineHeight: 1.6,
           }}
         >
-          Tell us who you want to reach. We&apos;ll find contacts, verify emails, and prepare your sequence.
+          Tell us who you want to reach. We&apos;ll find the contacts, verify
+          their emails, and prepare a personalized sequence.
         </p>
         <NLInput />
       </div>
 
-      {/* Campaign list or teaching empty state */}
+      {/* ── Campaign list or teaching empty state ────────────────────── */}
       {!hasCampaigns ? (
-        <div style={{ borderTop: "1px solid var(--line)", paddingTop: "4rem" }}>
-          <div className="grid grid-cols-1 gap-0 md:grid-cols-3" style={{ borderBottom: "1px solid var(--line)" }}>
+        <div>
+          <p className="eyebrow-num mb-8">
+            <b>—</b> How it works
+          </p>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             {[
-              { num: "01", title: "Describe your audience", desc: "Type who you're targeting — titles, locations, industries. We parse it into a search." },
-              { num: "02", title: "We find & verify", desc: "Claude queries 130M+ contacts, you review the list, then we verify work emails." },
-              { num: "03", title: "Push to Instantly", desc: "Personalized sequences land in your Instantly campaign, ready to send." },
-            ].map((step, i) => (
+              {
+                num: "01",
+                title: "Describe your audience",
+                desc: "Type who you're targeting — titles, locations, industries. We turn it into a precise search.",
+                cls: "panel-blush-faint",
+              },
+              {
+                num: "02",
+                title: "We find & verify",
+                desc: "Claude queries 130M+ contacts, you review the list, then we verify the work emails.",
+                cls: "panel-cream",
+              },
+              {
+                num: "03",
+                title: "Push to Instantly",
+                desc: "Personalized sequences land in your Instantly campaign, ready to send.",
+                cls: "panel-blush",
+              },
+            ].map((step) => (
               <div
                 key={step.num}
+                className={step.cls}
                 style={{
                   padding: "2.5rem 2rem",
-                  borderRight: i < 2 ? "1px solid var(--line)" : "none",
-                  borderTop: "1px solid var(--line)",
+                  borderTop: "2px solid var(--wsg-camel)",
                 }}
               >
-                <span
-                  style={{
-                    fontFamily: "var(--serif)",
-                    fontSize: "0.85rem",
-                    fontStyle: "italic",
-                    color: "var(--wsg-muted)",
-                  }}
-                >
-                  {step.num}
-                </span>
+                <span className="index-num">{step.num}</span>
                 <h3
                   className="mt-4 mb-3"
-                  style={{
-                    fontFamily: "var(--serif)",
-                    fontSize: "1.25rem",
-                    fontWeight: 300,
-                  }}
+                  style={{ fontFamily: "var(--serif)", fontSize: "1.4rem", fontWeight: 300 }}
                 >
                   {step.title}
                 </h3>
                 <p
                   style={{
-                    fontSize: "0.9rem",
-                    color: "rgba(0, 0, 0,0.4)",
+                    fontSize: "0.92rem",
+                    color: "var(--ink-soft)",
                     fontWeight: 300,
-                    lineHeight: 1.6,
+                    lineHeight: 1.65,
                   }}
                 >
                   {step.desc}
@@ -118,100 +110,88 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div>
-          <div className="mb-8 flex items-end justify-between" style={{ borderBottom: "1px solid var(--line)", paddingBottom: "1rem" }}>
-            <span className="eyebrow" style={{ color: "rgba(0, 0, 0,0.4)" }}>Recent Campaigns</span>
+          <div className="mb-8 flex items-end justify-between">
+            <p className="eyebrow-num">
+              <b>02</b> Recent Campaigns
+            </p>
+            <span style={{ fontSize: "0.8rem", color: "var(--ink-muted)", fontWeight: 300 }}>
+              {list.length} {list.length === 1 ? "campaign" : "campaigns"}
+            </span>
           </div>
-          <div>
-            {(campaigns as Campaign[]).map((campaign, i) => (
+          <hr className="rule-camel mb-2" />
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {list.map((campaign, i) => (
               <Link key={campaign.id} href={`/c/${campaign.id}`}>
                 <div
-                  className="group flex items-center justify-between transition-all duration-300"
+                  className="card-lift group flex h-full flex-col justify-between"
                   style={{
-                    padding: "2rem 0",
-                    borderBottom: "1px solid var(--line)",
+                    padding: "1.75rem 1.75rem 1.5rem",
+                    borderTop: "2px solid var(--wsg-camel)",
                   }}
                 >
-                  <div className="flex items-start gap-8">
-                    <span
-                      className="mt-1 shrink-0"
+                  <div>
+                    <div className="mb-4 flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-4">
+                        <span className="index-num mt-1.5">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <h3
+                          className="transition-colors duration-300 group-hover:text-[#BE7B44]"
+                          style={{
+                            fontFamily: "var(--serif)",
+                            fontSize: "1.45rem",
+                            fontWeight: 300,
+                            lineHeight: 1.25,
+                            letterSpacing: "-0.005em",
+                          }}
+                        >
+                          {campaign.name}
+                        </h3>
+                      </div>
+                      <StatusPill status={campaign.status} />
+                    </div>
+                    <p
                       style={{
-                        fontFamily: "var(--serif)",
-                        fontSize: "0.85rem",
-                        fontStyle: "italic",
-                        color: "var(--wsg-muted)",
+                        fontSize: "0.92rem",
+                        color: "var(--ink-soft)",
+                        fontWeight: 300,
+                        lineHeight: 1.55,
+                        paddingLeft: "2.1rem",
                       }}
                     >
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div>
-                      <h3
-                        className="transition-colors duration-300 group-hover:text-[#BE7B44]"
-                        style={{
-                          fontFamily: "var(--serif)",
-                          fontSize: "1.5rem",
-                          fontWeight: 300,
-                          letterSpacing: "-0.005em",
-                          lineHeight: 1.3,
-                        }}
-                      >
-                        {campaign.name}
-                      </h3>
-                      <p
-                        className="mt-1"
-                        style={{
-                          fontSize: "0.92rem",
-                          color: "rgba(0, 0, 0,0.45)",
-                          fontWeight: 300,
-                        }}
-                      >
-                        {campaign.brief?.persona || "No persona defined"}
-                      </p>
-                    </div>
+                      {campaign.brief?.persona || "No persona defined"}
+                    </p>
                   </div>
 
-                  <div className="flex items-center gap-10">
-                    {campaign.candidate_count != null && (
-                      <div className="hidden text-right md:block">
-                        <p style={{ fontSize: "1.25rem", fontWeight: 300 }}>
-                          {campaign.candidate_count.toLocaleString()}
-                        </p>
-                        <p className="eyebrow !text-[0.6rem]">Contacts</p>
-                      </div>
-                    )}
-                    {campaign.valid_count != null && (
-                      <div className="hidden text-right md:block">
-                        <p style={{ fontSize: "1.25rem", fontWeight: 300 }}>
-                          {campaign.valid_count.toLocaleString()}
-                        </p>
-                        <p className="eyebrow !text-[0.6rem]">Verified</p>
-                      </div>
-                    )}
-                    <div className="flex flex-col items-end gap-1.5">
-                      <span
-                        style={{
-                          fontFamily: "var(--sans)",
-                          fontSize: "0.72rem",
-                          fontWeight: 500,
-                          letterSpacing: "0.2em",
-                          textTransform: "uppercase" as const,
-                          color: statusAccent[campaign.status],
-                        }}
-                      >
-                        {statusLabels[campaign.status]}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: "0.72rem",
-                          color: "rgba(0, 0, 0,0.25)",
-                        }}
-                      >
-                        {new Date(campaign.created_at).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </span>
+                  <div
+                    className="mt-6 flex items-end justify-between"
+                    style={{ paddingLeft: "2.1rem" }}
+                  >
+                    <div className="flex items-end gap-8">
+                      {campaign.candidate_count != null && (
+                        <div>
+                          <p className="stat-num">
+                            {campaign.candidate_count.toLocaleString()}
+                          </p>
+                          <p className="eyebrow !text-[0.58rem] mt-1.5">Contacts</p>
+                        </div>
+                      )}
+                      {campaign.valid_count != null && (
+                        <div>
+                          <p className="stat-num stat-num--camel">
+                            {campaign.valid_count.toLocaleString()}
+                          </p>
+                          <p className="eyebrow !text-[0.58rem] mt-1.5">Verified</p>
+                        </div>
+                      )}
                     </div>
+                    <span style={{ fontSize: "0.72rem", color: "var(--ink-faint)" }}>
+                      {new Date(campaign.created_at).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
                   </div>
                 </div>
               </Link>

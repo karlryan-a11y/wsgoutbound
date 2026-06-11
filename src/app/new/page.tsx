@@ -76,7 +76,7 @@ function NewCampaignForm() {
       <Link
         href="/"
         className="nav-link eyebrow mb-12 inline-block"
-        style={{ color: "rgba(0, 0, 0,0.35)" }}
+        style={{ color: "rgba(0, 0, 0,0.5)" }}
       >
         &larr; Back
       </Link>

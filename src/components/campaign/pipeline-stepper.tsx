@@ -70,8 +70,8 @@ export function PipelineStepper({ status }: { status: CampaignStatus }) {
             dotColor = "#C30319"
             labelColor = "#C30319"
           } else if (isFailedStage && isCancelled) {
-            dotColor = "rgba(0, 0, 0,0.35)"
-            labelColor = "rgba(0, 0, 0,0.35)"
+            dotColor = "rgba(0, 0, 0,0.5)"
+            labelColor = "rgba(0, 0, 0,0.5)"
           } else if (isFutureOfFailed) {
             dotColor = "rgba(0, 0, 0,0.08)"
             labelColor = "rgba(0, 0, 0,0.12)"

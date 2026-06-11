@@ -95,46 +95,42 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
           step={10}
         />
         <div className="mt-3 flex justify-between">
-          <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.25)" }}>
+          <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.42)" }}>
             10
           </span>
-          <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.25)" }}>
+          <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.42)" }}>
             {Math.min(maxCandidates, 1000).toLocaleString()}
           </span>
         </div>
       </div>
 
-      {/* Cost estimate */}
+      {/* Cost estimate — cream panel with a camel rule */}
       <div
-        className="mb-10"
-        style={{
-          padding: "1.25rem 1.5rem",
-          border: "1px solid var(--line)",
-          background: "var(--surface-raised)",
-        }}
+        className="panel-cream mb-10"
+        style={{ padding: "1.4rem 1.6rem", borderLeft: "3px solid var(--wsg-camel)" }}
       >
-        <div className="flex items-center justify-between mb-2">
-          <span style={{ fontSize: "0.85rem", color: "rgba(0, 0, 0,0.5)", fontWeight: 300 }}>
-            Estimated cost
-          </span>
-          <span style={{ fontSize: "0.95rem", color: "var(--wsg-camel)", fontWeight: 400 }}>
-            ~{enrichCount} LeadMagic credits
-          </span>
+        <div className="mb-3 flex items-center justify-between">
+          <span className="eyebrow !text-[0.6rem]">Estimated cost</span>
+          <span className="pill pill--camel">~{enrichCount} credits</span>
         </div>
-        <p style={{ fontSize: "0.78rem", color: "rgba(0, 0, 0,0.3)", fontWeight: 300 }}>
-          1 credit per lookup. Not all lookups find an email — typical hit rate is 40–60%.
-          Expected verified emails: ~{Math.round(enrichCount * 0.5)}
+        <p style={{ fontSize: "0.82rem", color: "var(--ink-soft)", fontWeight: 300, lineHeight: 1.6 }}>
+          1 LeadMagic credit per lookup. Not every lookup finds an email — typical
+          hit rate is 40–60%, so expect roughly{" "}
+          <strong style={{ fontWeight: 600, color: "var(--ink)" }}>
+            {Math.round(enrichCount * 0.5)} verified
+          </strong>{" "}
+          emails.
         </p>
       </div>
 
       <button
         onClick={handleSubmit}
         disabled={loading}
-        className="wsg-btn-primary w-full disabled:opacity-40"
+        className="wsg-btn-camel w-full"
       >
         {loading
           ? "Starting verification..."
-          : `Verify ${enrichCount} contacts`}
+          : `Verify ${enrichCount} contacts →`}
       </button>
     </div>
   )

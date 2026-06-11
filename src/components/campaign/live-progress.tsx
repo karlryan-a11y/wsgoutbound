@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { EmailStatusPill } from "@/components/ui/status-pill"
 
 type RecentLead = {
   id: string
@@ -147,14 +148,6 @@ function getPhase(data: ProgressData): Phase {
         eta: null,
       }
   }
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  valid: "#2D500D",
-  risky: "#BE7B44",
-  catch_all: "#BE7B44",
-  invalid: "#C30319",
-  unknown: "rgba(0, 0, 0,0.35)",
 }
 
 // ── Stall detection ───────────────────────────────────────────────────
@@ -602,7 +595,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
             <span
               style={{
                 fontSize: "0.8rem",
-                color: "rgba(0, 0, 0,0.35)",
+                color: "rgba(0, 0, 0,0.5)",
                 fontWeight: 300,
               }}
             >
@@ -688,19 +681,8 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
                     >
                       {lead.email}
                     </td>
-                    <td
-                      style={{
-                        padding: "0.75rem 1.25rem",
-                        fontWeight: 500,
-                        fontSize: "0.72rem",
-                        letterSpacing: "0.15em",
-                        textTransform: "uppercase",
-                        color:
-                          STATUS_COLORS[lead.email_status ?? "unknown"] ??
-                          "rgba(0, 0, 0,0.35)",
-                      }}
-                    >
-                      {lead.email_status ?? "—"}
+                    <td style={{ padding: "0.6rem 1.25rem" }}>
+                      <EmailStatusPill status={lead.email_status} />
                     </td>
                   </tr>
                 ))}

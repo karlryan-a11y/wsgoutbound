@@ -208,19 +208,26 @@ export default function InstructionsPage() {
       <Link
         href="/"
         className="nav-link eyebrow mb-12 inline-block"
-        style={{ color: "rgba(0, 0, 0,0.35)" }}
+        style={{ color: "rgba(0, 0, 0,0.5)" }}
       >
         &larr; Back
       </Link>
 
-      <span className="eyebrow mb-4 block">Always-Apply</span>
-      <h1 className="mb-6" style={{ fontSize: "clamp(2rem, 4.2vw, 3.2rem)" }}>
-        Rules
-      </h1>
-      <p className="mb-16" style={{ color: "rgba(0, 0, 0,0.45)", fontWeight: 300, maxWidth: "52ch" }}>
-        These rules are injected into every query and email generation automatically. This is how
-        the system learns your preferences.
-      </p>
+      <div
+        className="accent-block mb-12"
+        style={{ padding: "clamp(1.5rem, 3vw, 2.25rem)" }}
+      >
+        <p className="eyebrow-num mb-4">
+          <b>—</b> Always-Apply
+        </p>
+        <h1 className="mb-4" style={{ fontSize: "clamp(2rem, 4.2vw, 3.2rem)" }}>
+          Rules
+        </h1>
+        <p style={{ color: "var(--ink-soft)", fontWeight: 300, maxWidth: "52ch", lineHeight: 1.6 }}>
+          These rules are injected into every query and email generation
+          automatically — this is how the system learns your preferences.
+        </p>
+      </div>
 
       <div className="space-y-16">
         {CATEGORIES.map((cat) => {
@@ -236,14 +243,14 @@ export default function InstructionsPage() {
                     {catRules.length}
                   </span>
                 </div>
-                <p style={{ fontSize: "0.8rem", color: "rgba(0, 0, 0,0.35)", fontWeight: 300, marginTop: "0.35rem" }}>
+                <p style={{ fontSize: "0.8rem", color: "rgba(0, 0, 0,0.5)", fontWeight: 300, marginTop: "0.35rem" }}>
                   {cat.description}
                 </p>
               </div>
 
               <div className="space-y-2">
                 {!loading && catRules.length === 0 && (
-                  <p style={{ fontSize: "0.85rem", color: "rgba(0, 0, 0,0.3)", fontWeight: 300, fontStyle: "italic" }}>
+                  <p style={{ fontSize: "0.85rem", color: "rgba(0, 0, 0,0.46)", fontWeight: 300, fontStyle: "italic" }}>
                     No {cat.label.toLowerCase()} yet. Example: &ldquo;{cat.placeholder}&rdquo;
                   </p>
                 )}
@@ -366,7 +373,7 @@ export default function InstructionsPage() {
                 {suppressions.length}
               </span>
             </div>
-            <p style={{ fontSize: "0.8rem", color: "rgba(0, 0, 0,0.35)", fontWeight: 300, marginTop: "0.35rem" }}>
+            <p style={{ fontSize: "0.8rem", color: "rgba(0, 0, 0,0.5)", fontWeight: 300, marginTop: "0.35rem" }}>
               Emails and domains excluded from every campaign
             </p>
           </div>
@@ -404,7 +411,7 @@ export default function InstructionsPage() {
           </div>
 
           {suppressions.length === 0 ? (
-            <p style={{ fontSize: "0.85rem", color: "rgba(0, 0, 0,0.3)", fontWeight: 300, fontStyle: "italic" }}>
+            <p style={{ fontSize: "0.85rem", color: "rgba(0, 0, 0,0.46)", fontWeight: 300, fontStyle: "italic" }}>
               No suppressions yet. Imported emails and domains will be excluded from all future campaigns.
             </p>
           ) : (
@@ -418,7 +425,7 @@ export default function InstructionsPage() {
                   <span style={{ fontSize: "0.88rem", fontWeight: 300, color: "var(--ink)" }}>
                     {s.email || s.domain}
                     {s.domain && !s.email && (
-                      <span className="eyebrow" style={{ marginLeft: "0.75rem", color: "rgba(0, 0, 0,0.3)" }}>
+                      <span className="eyebrow" style={{ marginLeft: "0.75rem", color: "rgba(0, 0, 0,0.46)" }}>
                         Domain
                       </span>
                     )}

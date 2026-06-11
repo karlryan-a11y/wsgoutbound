@@ -1,41 +1,16 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { supabaseServer } from "@/lib/supabase/server"
-import type { Campaign, CampaignStatus } from "@/types"
+import type { Campaign } from "@/types"
 import { SqlReview } from "@/components/campaign/sql-review"
 import { VolumePicker } from "@/components/campaign/volume-picker"
 import { CopyReview } from "@/components/campaign/copy-review"
 import { PushStatus } from "@/components/campaign/push-status"
 import { LiveProgress } from "@/components/campaign/live-progress"
 import { PipelineStepper } from "@/components/campaign/pipeline-stepper"
+import { StatusPill } from "@/components/ui/status-pill"
 
 export const dynamic = "force-dynamic"
-
-const statusLabels: Record<CampaignStatus, string> = {
-  draft: "Starting",
-  awaiting_sql_review: "Review Audience",
-  querying: "Finding Contacts",
-  awaiting_volume: "Choose Volume",
-  enriching: "Verifying Emails",
-  awaiting_copy_review: "Review Sequence",
-  pushing: "Sending to Instantly",
-  completed: "Complete",
-  failed: "Failed",
-  cancelled: "Stopped",
-}
-
-const statusAccent: Record<CampaignStatus, string> = {
-  draft: "rgba(0, 0, 0,0.3)",
-  awaiting_sql_review: "#BE7B44",
-  querying: "#7FB5CB",
-  awaiting_volume: "#BE7B44",
-  enriching: "#7FB5CB",
-  awaiting_copy_review: "#BE7B44",
-  pushing: "#7FB5CB",
-  completed: "#2D500D",
-  failed: "#C30319",
-  cancelled: "rgba(0, 0, 0,0.2)",
-}
 
 export default async function CampaignDetailPage({
   params,
@@ -64,47 +39,44 @@ export default async function CampaignDetailPage({
       <Link
         href="/"
         className="nav-link eyebrow mb-12 inline-block"
-        style={{ color: "rgba(0, 0, 0,0.35)" }}
+        style={{ color: "rgba(0, 0, 0,0.5)" }}
       >
         &larr; Back to campaigns
       </Link>
 
-      {/* Campaign header */}
-      <div className="mb-16 flex items-end justify-between">
-        <div>
-          <span className="eyebrow mb-4 block">Campaign</span>
-          <h1 style={{ fontSize: "clamp(2rem, 4.2vw, 3.2rem)" }}>{c.name}</h1>
-          <p
-            className="mt-3"
-            style={{
-              fontSize: "1rem",
-              color: "rgba(0, 0, 0,0.45)",
-              fontWeight: 300,
-              maxWidth: "48ch",
-            }}
-          >
-            {c.brief.persona}
-          </p>
+      {/* Campaign header — blush accent block */}
+      <div
+        className="accent-block mb-12"
+        style={{ padding: "clamp(1.75rem, 3.5vw, 2.75rem) clamp(1.5rem, 3.5vw, 2.75rem)" }}
+      >
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <p className="eyebrow-num mb-4">
+              <b>—</b> Campaign
+            </p>
+            <h1 style={{ fontSize: "clamp(2rem, 4.2vw, 3.2rem)" }}>{c.name}</h1>
+            <p
+              className="mt-4"
+              style={{
+                fontSize: "1.02rem",
+                color: "var(--ink-soft)",
+                fontWeight: 300,
+                maxWidth: "52ch",
+                lineHeight: 1.6,
+              }}
+            >
+              {c.brief.persona}
+            </p>
+          </div>
+          <StatusPill status={c.status} />
         </div>
-        <span
-          style={{
-            fontFamily: "var(--sans)",
-            fontSize: "0.72rem",
-            fontWeight: 500,
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            color: statusAccent[c.status],
-          }}
-        >
-          {statusLabels[c.status]}
-        </span>
       </div>
 
       {/* Pipeline stepper */}
       <PipelineStepper status={c.status} />
 
       {/* Divider */}
-      <hr className="wsg-divider mb-12" />
+      <hr className="rule-camel mb-12" />
 
       {/* Active review stages */}
       {c.status === "awaiting_sql_review" && <SqlReview campaign={c} />}

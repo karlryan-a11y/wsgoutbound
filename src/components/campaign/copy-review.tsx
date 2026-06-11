@@ -104,7 +104,7 @@ export function CopyReview({ campaign }: { campaign: Campaign }) {
               </span>
               <span
                 className="eyebrow"
-                style={{ color: "rgba(0, 0, 0,0.35)", fontSize: "0.62rem" }}
+                style={{ color: "rgba(0, 0, 0,0.5)", fontSize: "0.62rem" }}
               >
                 {step.delay_days === 0
                   ? "Send Immediately"

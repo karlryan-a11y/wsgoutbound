@@ -421,3 +421,132 @@ body {
     cursor: url('/cursor-glove.png') 7 1, auto;
   }
 }
+
+/* =========================================================================
+   POP LAYER — blush panels, status pills, accents, editorial flourishes
+   Brings the WSG palette to life: blush as the recurring accent, camel for
+   emphasis, butter/green/blue/red as status. Built for readability on paper.
+   ========================================================================= */
+
+/* ---- Blush / cream section panels (the signature alternating surface) ---- */
+.panel-blush { background: var(--wsg-blush); }
+.panel-blush-faint { background: var(--blush-faint); }
+.panel-cream { background: var(--cream-panel); }
+
+/* Hero accent block — blush wash with a camel rule down the left edge */
+.accent-block {
+  background: var(--blush-faint);
+  border-left: 3px solid var(--wsg-camel);
+}
+
+/* ---- Numbered eyebrow (01 — Label), camel index like the main site ---- */
+.eyebrow-num {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--wsg-muted);
+}
+.eyebrow-num b {
+  color: var(--wsg-camel);
+  font-weight: 600;
+  margin-right: 0.5em;
+}
+
+/* ---- Status / category pills — tinted fills, readable deep-tone text ---- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.72rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+.pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.pill--camel  { background: rgba(190, 123, 68, 0.16); color: #935a1f; }
+.pill--blue   { background: rgba(127, 181, 203, 0.26); color: #2f6f8c; }
+.pill--green  { background: rgba(45, 80, 13, 0.14);    color: #2d500d; }
+.pill--red    { background: rgba(195, 3, 25, 0.1);     color: #b00318; }
+.pill--blush  { background: var(--wsg-blush);          color: #a23a4d; }
+.pill--butter { background: #f0ebc6;                   color: #6b5f17; }
+.pill--muted  { background: rgba(0, 0, 0, 0.055);      color: #5a5a5a; }
+
+/* Pulsing dot for in-flight states */
+.pill__dot--pulse { animation: pill-pulse 1.4s ease-in-out infinite; }
+@keyframes pill-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.7); }
+}
+
+/* ---- Big serif stat (number over an eyebrow label) ---- */
+.stat-num {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.stat-num--camel { color: var(--wsg-camel); }
+.stat-num--green { color: var(--wsg-green); }
+
+/* ---- Camel index numeral (editorial list marker) ---- */
+.index-num {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--wsg-camel);
+}
+
+/* ---- Card with camel border-top that lifts on hover ---- */
+.card-lift {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.4s ease, border-color 0.4s ease;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 40px -22px rgba(0, 0, 0, 0.45);
+  border-color: rgba(0, 0, 0, 0.16);
+}
+
+/* ---- Camel-accent primary button that truly pops ---- */
+.wsg-btn-camel {
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: var(--wsg-camel);
+  color: #fff;
+  padding: 0.95rem 1.7rem;
+  border: 1px solid var(--wsg-camel);
+  transition: background 0.35s ease, letter-spacing 0.35s ease, box-shadow 0.35s ease;
+}
+.wsg-btn-camel:hover {
+  background: #a8682f;
+  border-color: #a8682f;
+  letter-spacing: 0.26em;
+  box-shadow: 0 10px 30px -14px rgba(190, 123, 68, 0.7);
+}
+.wsg-btn-camel:disabled { opacity: 0.4; }
+
+/* ---- Hairline that opens with a camel tab (section opener) ---- */
+.rule-camel {
+  border: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--wsg-camel) 0, var(--wsg-camel) 56px, var(--line) 56px, var(--line) 100%);
+}

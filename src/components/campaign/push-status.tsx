@@ -54,7 +54,7 @@ export function PushStatus({ campaign }: { campaign: Campaign }) {
           >
             {campaign.candidate_count?.toLocaleString() ?? "—"}
           </p>
-          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(0, 0, 0,0.35)" }}>
+          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(0, 0, 0,0.5)" }}>
             Candidates
           </span>
         </div>
@@ -89,7 +89,7 @@ export function PushStatus({ campaign }: { campaign: Campaign }) {
           >
             {campaign.enriched_count?.toLocaleString() ?? "—"}
           </p>
-          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(0, 0, 0,0.35)" }}>
+          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(0, 0, 0,0.5)" }}>
             Enriched
           </span>
         </div>
@@ -124,7 +124,7 @@ export function PushStatus({ campaign }: { campaign: Campaign }) {
           >
             {campaign.valid_count?.toLocaleString() ?? "—"}
           </p>
-          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(0, 0, 0,0.35)" }}>
+          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(0, 0, 0,0.5)" }}>
             Valid Emails
           </span>
         </div>
@@ -161,7 +161,7 @@ export function PushStatus({ campaign }: { campaign: Campaign }) {
             className="mt-4"
             style={{
               fontSize: "0.85rem",
-              color: "rgba(0, 0, 0,0.35)",
+              color: "rgba(0, 0, 0,0.5)",
               fontWeight: 300,
             }}
           >

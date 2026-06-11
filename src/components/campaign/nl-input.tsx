@@ -30,7 +30,7 @@ export function NLInput() {
     <div>
       <div
         className="flex items-center gap-0"
-        style={{ border: "1px solid var(--line-strong)" }}
+        style={{ border: "1px solid var(--line-strong)", background: "var(--paper)" }}
       >
         <input
           type="text"
@@ -40,7 +40,7 @@ export function NLInput() {
           placeholder="e.g. CFOs at mid-market companies in California"
           style={{
             flex: 1,
-            padding: "1.1rem 1.5rem",
+            padding: "1.15rem 1.5rem",
             background: "transparent",
             border: "none",
             color: "var(--ink)",
@@ -52,21 +52,26 @@ export function NLInput() {
         />
         <button
           onClick={handleSubmit}
-          className="shrink-0 transition-all duration-300"
-          style={{
-            padding: "1.1rem 2rem",
-            background: value.trim() ? "var(--ink)" : "rgba(0, 0, 0,0.06)",
-            color: value.trim() ? "var(--paper)" : "rgba(0, 0, 0,0.3)",
-            fontFamily: "var(--sans)",
-            fontSize: "0.74rem",
-            fontWeight: 500,
-            letterSpacing: "0.22em",
-            textTransform: "uppercase",
-            border: "none",
-            cursor: value.trim() ? "pointer" : "default",
-          }}
+          disabled={!value.trim()}
+          className={value.trim() ? "wsg-btn-camel shrink-0" : "shrink-0 transition-all duration-300"}
+          style={
+            value.trim()
+              ? { padding: "1.15rem 2rem" }
+              : {
+                  padding: "1.15rem 2rem",
+                  background: "rgba(0, 0, 0,0.05)",
+                  color: "rgba(0, 0, 0,0.46)",
+                  fontFamily: "var(--sans)",
+                  fontSize: "0.74rem",
+                  fontWeight: 600,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  border: "none",
+                  cursor: "default",
+                }
+          }
         >
-          Start
+          Start →
         </button>
       </div>
 
@@ -81,19 +86,21 @@ export function NLInput() {
               padding: "0.5rem 1rem",
               border: "1px solid var(--line)",
               background: "transparent",
-              color: "rgba(0, 0, 0,0.4)",
+              color: "rgba(0, 0, 0,0.5)",
               fontFamily: "var(--sans)",
               fontSize: "0.78rem",
-              fontWeight: 300,
+              fontWeight: 400,
               cursor: "pointer",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = "var(--wsg-camel)"
-              e.currentTarget.style.color = "rgba(0, 0, 0,0.7)"
+              e.currentTarget.style.background = "var(--wsg-blush)"
+              e.currentTarget.style.color = "#a23a4d"
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = "var(--line)"
-              e.currentTarget.style.color = "rgba(0, 0, 0,0.4)"
+              e.currentTarget.style.background = "transparent"
+              e.currentTarget.style.color = "rgba(0, 0, 0,0.5)"
             }}
           >
             {ex}
@@ -108,7 +115,7 @@ export function NLInput() {
           style={{
             background: "none",
             border: "none",
-            color: "rgba(0, 0, 0,0.3)",
+            color: "rgba(0, 0, 0,0.46)",
             fontFamily: "var(--sans)",
             fontSize: "0.78rem",
             fontWeight: 300,

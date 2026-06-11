@@ -274,7 +274,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                   strokeWidth={2}
-                  style={{ color: "rgba(0, 0, 0,0.3)" }}
+                  style={{ color: "rgba(0, 0, 0,0.46)" }}
                 >
                   <path
                     strokeLinecap="round"
@@ -282,7 +282,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                     d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
-                <span className="eyebrow" style={{ color: "rgba(0, 0, 0,0.35)" }}>
+                <span className="eyebrow" style={{ color: "rgba(0, 0, 0,0.5)" }}>
                   Excluding
                 </span>
               </div>
@@ -334,7 +334,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                 color:
                   activeTab === "included"
                     ? "var(--ink)"
-                    : "rgba(0, 0, 0,0.35)",
+                    : "rgba(0, 0, 0,0.5)",
                 padding: "1rem 1.5rem",
                 borderBottom:
                   activeTab === "included"
@@ -361,7 +361,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                 color:
                   activeTab === "excluded"
                     ? "var(--ink)"
-                    : "rgba(0, 0, 0,0.35)",
+                    : "rgba(0, 0, 0,0.5)",
                 padding: "1rem 1.5rem",
                 borderBottom:
                   activeTab === "excluded"
@@ -392,7 +392,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
               <p
                 style={{
                   fontSize: "0.85rem",
-                  color: "rgba(0, 0, 0,0.25)",
+                  color: "rgba(0, 0, 0,0.42)",
                   fontWeight: 300,
                 }}
               >
