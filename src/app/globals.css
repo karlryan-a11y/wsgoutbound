@@ -51,15 +51,18 @@
 }
 
 /* =========================================================================
-   Design Tokens — WSG Luxury Dark
+   Design Tokens — WSG Editorial Light (true to watsonstylegroup.com)
+   Clean white paper · ink black · blush as the recurring accent ·
+   camel/green/butter/red/blue as rare highlights · generous negative space.
    ========================================================================= */
 
 :root {
   --serif: "Schnyder M", Georgia, serif;
   --sans: "Neue Haas Grotesk", "Helvetica Neue", Arial, sans-serif;
 
-  /* brand palette */
-  --wsg-black: #050505;
+  /* brand palette (from WSG Color Palette.pdf) */
+  --wsg-black: #000000;
+  --wsg-ink: #0a0a0a;
   --wsg-white: #ffffff;
   --wsg-blush: #f8e5e7;
   --wsg-camel: #be7b44;
@@ -69,11 +72,24 @@
   --wsg-blue: #7fb5cb;
   --wsg-muted: #6b6b6b;
 
-  /* surfaces */
-  --line: rgba(255, 255, 255, 0.1);
-  --line-strong: rgba(255, 255, 255, 0.2);
-  --surface-raised: rgba(255, 255, 255, 0.05);
-  --surface-hover: rgba(255, 255, 255, 0.08);
+  /* paper + tints */
+  --paper: #ffffff;          /* primary background — clean white */
+  --paper-warm: #fcfafa;     /* faint warm off-white for alternating sections */
+  --blush-panel: #f8e5e7;    /* signature blush accent panel */
+  --blush-faint: #fcf3f4;    /* barely-there blush wash */
+  --cream-panel: #f7f4e6;    /* soft butter wash */
+
+  /* ink text ramp */
+  --ink: #0a0a0a;            /* primary text */
+  --ink-soft: rgba(10, 10, 10, 0.72);   /* secondary text */
+  --ink-muted: rgba(10, 10, 10, 0.5);   /* captions / muted */
+  --ink-faint: rgba(10, 10, 10, 0.3);   /* hints / disabled */
+
+  /* hairline rules + surfaces */
+  --line: rgba(0, 0, 0, 0.1);
+  --line-strong: rgba(0, 0, 0, 0.2);
+  --surface-raised: rgba(0, 0, 0, 0.02);
+  --surface-hover: rgba(0, 0, 0, 0.035);
 }
 
 @theme inline {
@@ -131,25 +147,25 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Light mode fallback */
+/* WSG Editorial Light — the primary mode for the outbound tool */
 :root {
   --background: #ffffff;
-  --foreground: #050505;
+  --foreground: #0a0a0a;
   --card: #ffffff;
-  --card-foreground: #050505;
+  --card-foreground: #0a0a0a;
   --popover: #ffffff;
-  --popover-foreground: #050505;
-  --primary: #050505;
+  --popover-foreground: #0a0a0a;
+  --primary: #0a0a0a;
   --primary-foreground: #ffffff;
-  --secondary: #f5f5f5;
-  --secondary-foreground: #050505;
-  --muted: #f5f5f5;
+  --secondary: #f7f4e6;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f6f6f6;
   --muted-foreground: #6b6b6b;
   --accent: #f8e5e7;
-  --accent-foreground: #050505;
+  --accent-foreground: #0a0a0a;
   --destructive: #c30319;
-  --border: rgba(0, 0, 0, 0.12);
-  --input: rgba(0, 0, 0, 0.12);
+  --border: rgba(0, 0, 0, 0.1);
+  --input: rgba(0, 0, 0, 0.14);
   --ring: #be7b44;
   --chart-1: #be7b44;
   --chart-2: #7fb5cb;
@@ -157,35 +173,36 @@
   --chart-4: #ede8be;
   --chart-5: #c30319;
   --radius: 0rem;
-  --sidebar: #fafafa;
-  --sidebar-foreground: #050505;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0a0a0a;
   --sidebar-primary: #be7b44;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f8e5e7;
-  --sidebar-accent-foreground: #050505;
-  --sidebar-border: rgba(0, 0, 0, 0.12);
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: rgba(0, 0, 0, 0.1);
   --sidebar-ring: #be7b44;
 }
 
-/* WSG Dark — the primary mode for outbound tool */
+/* .dark neutralized to light — the outbound tool is editorial light only.
+   Kept mirroring :root so any lingering dark: utilities don't render dark. */
 .dark {
-  --background: #1c1813;
-  --foreground: #f5f1ea;
-  --card: rgba(255, 255, 255, 0.05);
-  --card-foreground: #f5f1ea;
-  --popover: #221d16;
-  --popover-foreground: #f5f1ea;
-  --primary: #ffffff;
-  --primary-foreground: #050505;
-  --secondary: rgba(255, 255, 255, 0.06);
-  --secondary-foreground: #ffffff;
-  --muted: rgba(255, 255, 255, 0.05);
-  --muted-foreground: rgba(247, 243, 236, 0.66);
-  --accent: rgba(255, 255, 255, 0.06);
-  --accent-foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #0a0a0a;
+  --primary-foreground: #ffffff;
+  --secondary: #f7f4e6;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f6f6f6;
+  --muted-foreground: #6b6b6b;
+  --accent: #f8e5e7;
+  --accent-foreground: #0a0a0a;
   --destructive: #c30319;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.08);
+  --border: rgba(0, 0, 0, 0.1);
+  --input: rgba(0, 0, 0, 0.14);
   --ring: #be7b44;
   --chart-1: #be7b44;
   --chart-2: #7fb5cb;
@@ -193,13 +210,13 @@
   --chart-4: #ede8be;
   --chart-5: #c30319;
   --radius: 0rem;
-  --sidebar: #050505;
-  --sidebar-foreground: #ffffff;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0a0a0a;
   --sidebar-primary: #be7b44;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(255, 255, 255, 0.06);
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-accent: #f8e5e7;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: rgba(0, 0, 0, 0.1);
   --sidebar-ring: #be7b44;
 }
 
@@ -219,17 +236,15 @@
 
   body {
     font-family: var(--sans);
-    font-weight: 400;
+    font-weight: 300;
     line-height: 1.7;
-    /* Warm charcoal — a real, visible lift off pure black, deepening toward the bottom */
-    background: linear-gradient(180deg, #241f18 0%, #1c1813 55%, #16120d 100%);
-    background-attachment: fixed;
+    background: var(--background);
     color: var(--foreground);
   }
 
   ::selection {
     background: var(--wsg-blush);
-    color: var(--wsg-black);
+    color: var(--wsg-ink);
   }
 
   /* Serif headings — Schnyder M Light */
@@ -250,14 +265,14 @@
    Utility Classes — WSG Editorial System
    ========================================================================= */
 
-/* Eyebrow label — matches watsonstyle.netlify.app exactly */
+/* Eyebrow label — matches watsonstylegroup.com exactly */
 .eyebrow {
   font-family: var(--sans);
   font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: rgba(247, 243, 236, 0.58);
+  color: var(--wsg-muted);
 }
 
 /* Section divider — hairline like the main site */
@@ -275,43 +290,50 @@
 /* Elevated card with camel accent border-top */
 .wsg-card {
   border: 1px solid var(--line);
-  background: var(--surface-raised);
+  background: var(--paper);
   border-top: 2px solid var(--wsg-camel);
 }
 
-/* Ghost button — matches .nav__cta from main site */
+/* Blush accent panel — the signature WSG editorial surface */
+.wsg-panel-blush {
+  border: 1px solid var(--line);
+  background: var(--blush-faint);
+}
+
+/* Ghost button — ink outline, fills to ink on hover */
 .wsg-btn-ghost {
   font-family: var(--sans);
   font-size: 0.74rem;
   font-weight: 400;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  border: 1px solid currentColor;
+  border: 1px solid var(--ink);
+  color: var(--ink);
   padding: 0.85rem 1.6rem;
   transition: background 0.35s ease, color 0.35s ease, letter-spacing 0.35s ease;
 }
 
 .wsg-btn-ghost:hover {
-  background: #fff;
-  color: var(--wsg-black);
+  background: var(--ink);
+  color: var(--paper);
   letter-spacing: 0.28em;
 }
 
-/* Primary button — solid white */
+/* Primary button — solid ink, warms to camel on hover */
 .wsg-btn-primary {
   font-family: var(--sans);
   font-size: 0.74rem;
   font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  background: #fff;
-  color: var(--wsg-black);
+  background: var(--ink);
+  color: var(--paper);
   padding: 0.85rem 1.6rem;
   transition: background 0.35s ease, letter-spacing 0.35s ease;
 }
 
 .wsg-btn-primary:hover {
-  background: var(--wsg-blush);
+  background: var(--wsg-camel);
   letter-spacing: 0.28em;
 }
 
@@ -323,14 +345,14 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   border: 1px solid var(--line-strong);
-  color: rgba(247, 243, 236, 0.72);
+  color: var(--ink-muted);
   padding: 0.85rem 1.6rem;
   transition: all 0.35s ease;
 }
 
 .wsg-btn-muted:hover {
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #fff;
+  border-color: var(--ink);
+  color: var(--ink);
 }
 
 /* Scroll reveal — matches main site */
@@ -364,7 +386,7 @@ body {
 .wsg-spinner {
   width: 20px;
   height: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-top-color: var(--wsg-camel);
   animation: wsg-spin 1s linear infinite;
 }
@@ -382,7 +404,7 @@ body {
   bottom: 0;
   width: 0;
   height: 1px;
-  background: var(--wsg-blush);
+  background: var(--wsg-camel);
   transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -392,10 +414,10 @@ body {
 
 /* White-glove cursor — hover devices only */
 @media (hover: hover) {
-  html.dark,
-  html.dark *,
-  html.dark a,
-  html.dark button {
+  html,
+  html *,
+  html a,
+  html button {
     cursor: url('/cursor-glove.png') 7 1, auto;
   }
 }

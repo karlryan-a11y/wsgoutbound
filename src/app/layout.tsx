@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <link rel="preload" href="/fonts/schnyder/Schnyder-MLight-Web.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/neue-haas/NHaasGroteskDSPro-45Lt.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />

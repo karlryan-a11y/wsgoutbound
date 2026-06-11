@@ -154,7 +154,7 @@ const STATUS_COLORS: Record<string, string> = {
   risky: "#BE7B44",
   catch_all: "#BE7B44",
   invalid: "#C30319",
-  unknown: "rgba(255,255,255,0.56)",
+  unknown: "rgba(0, 0, 0,0.35)",
 }
 
 // ── Stall detection ───────────────────────────────────────────────────
@@ -251,7 +251,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
     return (
       <div className="flex items-center gap-4 py-16">
         <div className="wsg-spinner" />
-        <span style={{ color: "rgba(255,255,255,0.7)", fontWeight: 300 }}>
+        <span style={{ color: "rgba(0, 0, 0,0.45)", fontWeight: 300 }}>
           Loading...
         </span>
       </div>
@@ -279,7 +279,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
             isFailed
               ? { color: "#C30319" }
               : isCancelled
-                ? { color: "rgba(255,255,255,0.68)" }
+                ? { color: "rgba(0, 0, 0,0.5)" }
                 : undefined
           }
         >
@@ -339,7 +339,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
             style={{
               fontSize: "0.95rem",
               fontWeight: 400,
-              color: "rgba(255,255,255,0.85)",
+              color: "rgba(0, 0, 0,0.85)",
               lineHeight: 1.5,
             }}
           >
@@ -354,7 +354,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
           className="mb-8"
           style={{
             fontSize: "0.9rem",
-            color: "rgba(255,255,255,0.68)",
+            color: "rgba(0, 0, 0,0.5)",
             fontWeight: 300,
           }}
         >
@@ -383,7 +383,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
             style={{
               fontSize: "0.9rem",
               fontWeight: 300,
-              color: "rgba(255,255,255,0.82)",
+              color: "rgba(0, 0, 0,0.7)",
               lineHeight: 1.5,
             }}
           >
@@ -413,7 +413,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
             style={{
               fontSize: "0.9rem",
               fontWeight: 300,
-              color: "rgba(255,255,255,0.82)",
+              color: "rgba(0, 0, 0,0.7)",
               lineHeight: 1.5,
             }}
           >
@@ -430,7 +430,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
           className="mb-10"
           style={{
             fontSize: "0.9rem",
-            color: "rgba(255,255,255,0.68)",
+            color: "rgba(0, 0, 0,0.5)",
             fontWeight: 300,
           }}
         >
@@ -474,7 +474,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
                 color: isFailed
                   ? "#C30319"
                   : isCancelled
-                    ? "rgba(255,255,255,0.68)"
+                    ? "rgba(0, 0, 0,0.5)"
                     : "var(--wsg-camel)",
               }}
             >
@@ -489,7 +489,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
             <span
               style={{
                 fontSize: "0.9rem",
-                color: "rgba(255,255,255,0.74)",
+                color: "rgba(0, 0, 0,0.6)",
                 fontWeight: 400,
               }}
             >
@@ -524,7 +524,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
                 className="eyebrow"
                 style={{
                   fontSize: "0.6rem",
-                  color: "rgba(255,255,255,0.68)",
+                  color: "rgba(0, 0, 0,0.5)",
                 }}
               >
                 Checked
@@ -551,7 +551,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
                 className="eyebrow"
                 style={{
                   fontSize: "0.6rem",
-                  color: "rgba(255,255,255,0.68)",
+                  color: "rgba(0, 0, 0,0.5)",
                 }}
               >
                 Verified
@@ -576,7 +576,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
                 className="eyebrow"
                 style={{
                   fontSize: "0.6rem",
-                  color: "rgba(255,255,255,0.68)",
+                  color: "rgba(0, 0, 0,0.5)",
                 }}
               >
                 Personalized
@@ -596,13 +596,13 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
               paddingTop: "2rem",
             }}
           >
-            <span className="eyebrow" style={{ color: "rgba(255,255,255,0.68)" }}>
+            <span className="eyebrow" style={{ color: "rgba(0, 0, 0,0.5)" }}>
               Verified Contacts
             </span>
             <span
               style={{
                 fontSize: "0.8rem",
-                color: "rgba(255,255,255,0.56)",
+                color: "rgba(0, 0, 0,0.35)",
                 fontWeight: 300,
               }}
             >
@@ -653,7 +653,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
                     <td
                       style={{
                         padding: "0.75rem 1.25rem",
-                        color: "rgba(255,255,255,0.8)",
+                        color: "rgba(0, 0, 0,0.8)",
                         fontWeight: 400,
                       }}
                     >
@@ -662,7 +662,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
                     <td
                       style={{
                         padding: "0.75rem 1.25rem",
-                        color: "rgba(255,255,255,0.66)",
+                        color: "rgba(0, 0, 0,0.55)",
                         fontWeight: 300,
                       }}
                     >
@@ -671,7 +671,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
                     <td
                       style={{
                         padding: "0.75rem 1.25rem",
-                        color: "rgba(255,255,255,0.66)",
+                        color: "rgba(0, 0, 0,0.55)",
                         fontWeight: 300,
                       }}
                     >
@@ -680,7 +680,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
                     <td
                       style={{
                         padding: "0.75rem 1.25rem",
-                        color: "rgba(255,255,255,0.82)",
+                        color: "rgba(0, 0, 0,0.7)",
                         fontWeight: 300,
                         fontFamily: "var(--sans)",
                         fontSize: "0.8rem",
@@ -697,7 +697,7 @@ export function LiveProgress({ campaignId }: { campaignId: string }) {
                         textTransform: "uppercase",
                         color:
                           STATUS_COLORS[lead.email_status ?? "unknown"] ??
-                          "rgba(255,255,255,0.56)",
+                          "rgba(0, 0, 0,0.35)",
                       }}
                     >
                       {lead.email_status ?? "—"}

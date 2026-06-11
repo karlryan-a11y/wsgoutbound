@@ -8,13 +8,13 @@ export default function GlobalError({
   reset: () => void
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="flex min-h-screen items-center justify-center bg-[#0A0A0A] text-[#F8E5E7]">
+    <html lang="en">
+      <body className="flex min-h-screen items-center justify-center bg-white text-[#0A0A0A]">
         <div className="text-center">
           <h2 className="mb-4 text-2xl">Something went wrong</h2>
           <button
             onClick={() => reset()}
-            className="rounded bg-[#BE7B44] px-4 py-2 text-white hover:bg-[#A86A37]"
+            className="bg-[#0A0A0A] px-4 py-2 text-white hover:bg-[#BE7B44]"
           >
             Try again
           </button>

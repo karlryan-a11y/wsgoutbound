@@ -57,12 +57,12 @@ export function PipelineStepper({ status }: { status: CampaignStatus }) {
           const isFutureOfFailed = isTerminal && i > failIdx
           const isPastOfFailed = isTerminal && i < failIdx
 
-          let dotColor = "rgba(255,255,255,0.15)"
-          let labelColor = "rgba(255,255,255,0.42)"
+          let dotColor = "rgba(0, 0, 0,0.15)"
+          let labelColor = "rgba(0, 0, 0,0.2)"
 
           if (isComplete || isPastOfFailed) {
             dotColor = "#2D500D"
-            labelColor = "rgba(255,255,255,0.7)"
+            labelColor = "rgba(0, 0, 0,0.45)"
           } else if (isActive) {
             dotColor = "#BE7B44"
             labelColor = "#BE7B44"
@@ -70,11 +70,11 @@ export function PipelineStepper({ status }: { status: CampaignStatus }) {
             dotColor = "#C30319"
             labelColor = "#C30319"
           } else if (isFailedStage && isCancelled) {
-            dotColor = "rgba(255,255,255,0.56)"
-            labelColor = "rgba(255,255,255,0.56)"
+            dotColor = "rgba(0, 0, 0,0.35)"
+            labelColor = "rgba(0, 0, 0,0.35)"
           } else if (isFutureOfFailed) {
-            dotColor = "rgba(255,255,255,0.08)"
-            labelColor = "rgba(255,255,255,0.12)"
+            dotColor = "rgba(0, 0, 0,0.08)"
+            labelColor = "rgba(0, 0, 0,0.12)"
           }
 
           return (
@@ -119,8 +119,8 @@ export function PipelineStepper({ status }: { status: CampaignStatus }) {
                       isComplete || isPastOfFailed
                         ? "#2D500D"
                         : isActive
-                          ? `linear-gradient(to right, #BE7B44, rgba(255,255,255,0.08))`
-                          : "rgba(255,255,255,0.08)",
+                          ? `linear-gradient(to right, #BE7B44, rgba(0, 0, 0,0.08))`
+                          : "rgba(0, 0, 0,0.08)",
                     transition: "background 0.5s ease",
                   }}
                 />

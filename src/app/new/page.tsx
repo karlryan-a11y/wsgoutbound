@@ -16,7 +16,7 @@ function Field({
     <div>
       <label
         className="eyebrow mb-3 block"
-        style={{ color: "rgba(255,255,255,0.68)" }}
+        style={{ color: "rgba(0, 0, 0,0.5)" }}
       >
         {label}
       </label>
@@ -31,7 +31,7 @@ const inputStyle: React.CSSProperties = {
   background: "transparent",
   border: "none",
   borderBottom: "1px solid var(--line-strong)",
-  color: "#fff",
+  color: "var(--ink)",
   fontFamily: "var(--sans)",
   fontSize: "1rem",
   fontWeight: 300,
@@ -76,7 +76,7 @@ function NewCampaignForm() {
       <Link
         href="/"
         className="nav-link eyebrow mb-12 inline-block"
-        style={{ color: "rgba(255,255,255,0.56)" }}
+        style={{ color: "rgba(0, 0, 0,0.35)" }}
       >
         &larr; Back
       </Link>
@@ -98,7 +98,7 @@ function NewCampaignForm() {
             background: "rgba(190, 123, 68, 0.06)",
           }}
         >
-          <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.74)", fontWeight: 300 }}>
+          <p style={{ fontSize: "0.85rem", color: "rgba(0, 0, 0,0.6)", fontWeight: 300 }}>
             Parsed from your description — edit any fields below.
           </p>
         </div>

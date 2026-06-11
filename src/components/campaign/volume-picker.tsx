@@ -54,7 +54,7 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
         className="mb-12"
         style={{
           fontSize: "1rem",
-          color: "rgba(255,255,255,0.7)",
+          color: "rgba(0, 0, 0,0.45)",
           fontWeight: 300,
         }}
       >
@@ -83,7 +83,7 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
           >
             {enrichCount}
           </span>
-          <span className="eyebrow" style={{ color: "rgba(255,255,255,0.62)" }}>
+          <span className="eyebrow" style={{ color: "rgba(0, 0, 0,0.4)" }}>
             Contacts to verify
           </span>
         </div>
@@ -95,10 +95,10 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
           step={10}
         />
         <div className="mt-3 flex justify-between">
-          <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.46)" }}>
+          <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.25)" }}>
             10
           </span>
-          <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.46)" }}>
+          <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.25)" }}>
             {Math.min(maxCandidates, 1000).toLocaleString()}
           </span>
         </div>
@@ -114,14 +114,14 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
         }}
       >
         <div className="flex items-center justify-between mb-2">
-          <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.68)", fontWeight: 300 }}>
+          <span style={{ fontSize: "0.85rem", color: "rgba(0, 0, 0,0.5)", fontWeight: 300 }}>
             Estimated cost
           </span>
           <span style={{ fontSize: "0.95rem", color: "var(--wsg-camel)", fontWeight: 400 }}>
             ~{enrichCount} LeadMagic credits
           </span>
         </div>
-        <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.52)", fontWeight: 300 }}>
+        <p style={{ fontSize: "0.78rem", color: "rgba(0, 0, 0,0.3)", fontWeight: 300 }}>
           1 credit per lookup. Not all lookups find an email — typical hit rate is 40–60%.
           Expected verified emails: ~{Math.round(enrichCount * 0.5)}
         </p>

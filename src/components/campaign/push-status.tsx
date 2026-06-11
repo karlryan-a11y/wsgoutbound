@@ -54,7 +54,7 @@ export function PushStatus({ campaign }: { campaign: Campaign }) {
           >
             {campaign.candidate_count?.toLocaleString() ?? "—"}
           </p>
-          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.56)" }}>
+          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(0, 0, 0,0.35)" }}>
             Candidates
           </span>
         </div>
@@ -89,7 +89,7 @@ export function PushStatus({ campaign }: { campaign: Campaign }) {
           >
             {campaign.enriched_count?.toLocaleString() ?? "—"}
           </p>
-          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.56)" }}>
+          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(0, 0, 0,0.35)" }}>
             Enriched
           </span>
         </div>
@@ -119,12 +119,12 @@ export function PushStatus({ campaign }: { campaign: Campaign }) {
               fontWeight: 300,
               lineHeight: 1.1,
               marginBottom: "0.5rem",
-              color: isCompleted ? "var(--wsg-camel)" : "#fff",
+              color: isCompleted ? "var(--wsg-camel)" : "var(--ink)",
             }}
           >
             {campaign.valid_count?.toLocaleString() ?? "—"}
           </p>
-          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.56)" }}>
+          <span className="eyebrow" style={{ fontSize: "0.62rem", color: "rgba(0, 0, 0,0.35)" }}>
             Valid Emails
           </span>
         </div>
@@ -141,7 +141,7 @@ export function PushStatus({ campaign }: { campaign: Campaign }) {
             padding: "2.5rem",
           }}
         >
-          <span className="eyebrow mb-3 block" style={{ color: "rgba(255,255,255,0.62)" }}>
+          <span className="eyebrow mb-3 block" style={{ color: "rgba(0, 0, 0,0.4)" }}>
             Instantly Campaign
           </span>
           <p
@@ -150,7 +150,7 @@ export function PushStatus({ campaign }: { campaign: Campaign }) {
               fontFamily: "var(--sans)",
               fontSize: "0.85rem",
               fontWeight: 400,
-              color: "rgba(255,255,255,0.82)",
+              color: "rgba(0, 0, 0,0.7)",
               fontVariantNumeric: "tabular-nums",
               letterSpacing: "0.02em",
             }}
@@ -161,7 +161,7 @@ export function PushStatus({ campaign }: { campaign: Campaign }) {
             className="mt-4"
             style={{
               fontSize: "0.85rem",
-              color: "rgba(255,255,255,0.56)",
+              color: "rgba(0, 0, 0,0.35)",
               fontWeight: 300,
             }}
           >

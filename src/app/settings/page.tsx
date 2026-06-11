@@ -63,7 +63,7 @@ export default function SettingsPage() {
       <Link
         href="/"
         className="nav-link eyebrow mb-12 inline-block"
-        style={{ color: "rgba(255,255,255,0.56)" }}
+        style={{ color: "rgba(0, 0, 0,0.35)" }}
       >
         &larr; Back
       </Link>
@@ -73,7 +73,7 @@ export default function SettingsPage() {
           <span className="eyebrow mb-4 block">System</span>
           <h1 style={{ fontSize: "clamp(2rem, 4.2vw, 3.2rem)" }}>Settings</h1>
         </div>
-        <button className="wsg-btn-ghost shrink-0" style={{ color: "#fff" }} onClick={check} disabled={loading}>
+        <button className="wsg-btn-ghost shrink-0" style={{ color: "var(--ink)" }} onClick={check} disabled={loading}>
           {loading ? "Checking…" : "Check All"}
         </button>
       </div>
@@ -85,7 +85,7 @@ export default function SettingsPage() {
             Integration Health
           </h2>
           {data?.checkedAt && (
-            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.52)", fontWeight: 300, marginTop: "0.35rem" }}>
+            <p style={{ fontSize: "0.78rem", color: "rgba(0, 0, 0,0.3)", fontWeight: 300, marginTop: "0.35rem" }}>
               Last checked {new Date(data.checkedAt).toLocaleTimeString("en-US")}
             </p>
           )}
@@ -95,7 +95,7 @@ export default function SettingsPage() {
           {loading && !data
             ? Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="wsg-surface" style={{ padding: "1.25rem 1.5rem", opacity: 0.4 }}>
-                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.62)" }}>Checking…</span>
+                  <span style={{ fontSize: "0.85rem", color: "rgba(0, 0, 0,0.4)" }}>Checking…</span>
                 </div>
               ))
             : (data?.checks || []).map((c) => (
@@ -114,10 +114,10 @@ export default function SettingsPage() {
                               : "0 0 8px rgba(195,3,25,0.8)",
                         }}
                       />
-                      <span style={{ fontSize: "1rem", fontWeight: 400, color: "#fff" }}>{c.name}</span>
+                      <span style={{ fontSize: "1rem", fontWeight: 400, color: "var(--ink)" }}>{c.name}</span>
                     </div>
                     {typeof c.latencyMs === "number" && (
-                      <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.52)" }}>{c.latencyMs}ms</span>
+                      <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.3)" }}>{c.latencyMs}ms</span>
                     )}
                   </div>
                   <p
@@ -125,7 +125,7 @@ export default function SettingsPage() {
                     style={{
                       fontSize: "0.82rem",
                       fontWeight: 300,
-                      color: c.status === "ok" ? "rgba(255,255,255,0.7)" : "var(--wsg-red)",
+                      color: c.status === "ok" ? "rgba(0, 0, 0,0.45)" : "var(--wsg-red)",
                     }}
                   >
                     {c.message || (c.status === "ok" ? "Connected" : "Unreachable")}
@@ -141,7 +141,7 @@ export default function SettingsPage() {
           <h2 style={{ fontFamily: "var(--serif)", fontSize: "1.4rem", fontWeight: 300 }}>
             Environment Variables
           </h2>
-          <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.56)", fontWeight: 300, marginTop: "0.35rem" }}>
+          <p style={{ fontSize: "0.8rem", color: "rgba(0, 0, 0,0.35)", fontWeight: 300, marginTop: "0.35rem" }}>
             Configured server-side. Values are never exposed.
           </p>
         </div>
@@ -157,7 +157,7 @@ export default function SettingsPage() {
                 style={{
                   fontSize: "0.85rem",
                   fontWeight: 300,
-                  color: "rgba(255,255,255,0.82)",
+                  color: "rgba(0, 0, 0,0.7)",
                   fontFamily: "var(--font-mono, monospace)",
                   letterSpacing: "0.02em",
                 }}
@@ -179,7 +179,7 @@ export default function SettingsPage() {
             </div>
           ))}
           {!loading && (!data?.envStatus || data.envStatus.length === 0) && (
-            <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.52)", fontWeight: 300 }}>
+            <p style={{ fontSize: "0.85rem", color: "rgba(0, 0, 0,0.3)", fontWeight: 300 }}>
               Unable to read environment status.
             </p>
           )}

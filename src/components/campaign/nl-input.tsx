@@ -43,7 +43,7 @@ export function NLInput() {
             padding: "1.1rem 1.5rem",
             background: "transparent",
             border: "none",
-            color: "#fff",
+            color: "var(--ink)",
             fontFamily: "var(--sans)",
             fontSize: "1rem",
             fontWeight: 300,
@@ -55,8 +55,8 @@ export function NLInput() {
           className="shrink-0 transition-all duration-300"
           style={{
             padding: "1.1rem 2rem",
-            background: value.trim() ? "#fff" : "rgba(255,255,255,0.06)",
-            color: value.trim() ? "var(--wsg-black)" : "rgba(255,255,255,0.52)",
+            background: value.trim() ? "var(--ink)" : "rgba(0, 0, 0,0.06)",
+            color: value.trim() ? "var(--paper)" : "rgba(0, 0, 0,0.3)",
             fontFamily: "var(--sans)",
             fontSize: "0.74rem",
             fontWeight: 500,
@@ -81,7 +81,7 @@ export function NLInput() {
               padding: "0.5rem 1rem",
               border: "1px solid var(--line)",
               background: "transparent",
-              color: "rgba(255,255,255,0.62)",
+              color: "rgba(0, 0, 0,0.4)",
               fontFamily: "var(--sans)",
               fontSize: "0.78rem",
               fontWeight: 300,
@@ -89,11 +89,11 @@ export function NLInput() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = "var(--wsg-camel)"
-              e.currentTarget.style.color = "rgba(255,255,255,0.82)"
+              e.currentTarget.style.color = "rgba(0, 0, 0,0.7)"
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = "var(--line)"
-              e.currentTarget.style.color = "rgba(255,255,255,0.62)"
+              e.currentTarget.style.color = "rgba(0, 0, 0,0.4)"
             }}
           >
             {ex}
@@ -108,7 +108,7 @@ export function NLInput() {
           style={{
             background: "none",
             border: "none",
-            color: "rgba(255,255,255,0.52)",
+            color: "rgba(0, 0, 0,0.3)",
             fontFamily: "var(--sans)",
             fontSize: "0.78rem",
             fontWeight: 300,
