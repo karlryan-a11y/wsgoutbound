@@ -208,7 +208,7 @@ export default function InstructionsPage() {
       <Link
         href="/"
         className="nav-link eyebrow mb-12 inline-block"
-        style={{ color: "rgba(255,255,255,0.35)" }}
+        style={{ color: "rgba(255,255,255,0.56)" }}
       >
         &larr; Back
       </Link>
@@ -217,7 +217,7 @@ export default function InstructionsPage() {
       <h1 className="mb-6" style={{ fontSize: "clamp(2rem, 4.2vw, 3.2rem)" }}>
         Rules
       </h1>
-      <p className="mb-16" style={{ color: "rgba(255,255,255,0.45)", fontWeight: 300, maxWidth: "52ch" }}>
+      <p className="mb-16" style={{ color: "rgba(255,255,255,0.7)", fontWeight: 300, maxWidth: "52ch" }}>
         These rules are injected into every query and email generation automatically. This is how
         the system learns your preferences.
       </p>
@@ -236,14 +236,14 @@ export default function InstructionsPage() {
                     {catRules.length}
                   </span>
                 </div>
-                <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.35)", fontWeight: 300, marginTop: "0.35rem" }}>
+                <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.56)", fontWeight: 300, marginTop: "0.35rem" }}>
                   {cat.description}
                 </p>
               </div>
 
               <div className="space-y-2">
                 {!loading && catRules.length === 0 && (
-                  <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.3)", fontWeight: 300, fontStyle: "italic" }}>
+                  <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.52)", fontWeight: 300, fontStyle: "italic" }}>
                     No {cat.label.toLowerCase()} yet. Example: &ldquo;{cat.placeholder}&rdquo;
                   </p>
                 )}
@@ -313,7 +313,7 @@ export default function InstructionsPage() {
                       ) : (
                         <button
                           className="eyebrow"
-                          style={{ color: "rgba(255,255,255,0.45)", background: "transparent", border: "none" }}
+                          style={{ color: "rgba(255,255,255,0.7)", background: "transparent", border: "none" }}
                           onClick={() => {
                             setEditId(rule.id)
                             setEditText(rule.rule)
@@ -366,13 +366,13 @@ export default function InstructionsPage() {
                 {suppressions.length}
               </span>
             </div>
-            <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.35)", fontWeight: 300, marginTop: "0.35rem" }}>
+            <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.56)", fontWeight: 300, marginTop: "0.35rem" }}>
               Emails and domains excluded from every campaign
             </p>
           </div>
 
           <div className="wsg-card mb-6" style={{ padding: "clamp(1.25rem, 3vw, 2rem)" }}>
-            <label className="eyebrow mb-3 block" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <label className="eyebrow mb-3 block" style={{ color: "rgba(255,255,255,0.68)" }}>
               Bulk Import — one per line
             </label>
             <textarea
@@ -404,7 +404,7 @@ export default function InstructionsPage() {
           </div>
 
           {suppressions.length === 0 ? (
-            <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.3)", fontWeight: 300, fontStyle: "italic" }}>
+            <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.52)", fontWeight: 300, fontStyle: "italic" }}>
               No suppressions yet. Imported emails and domains will be excluded from all future campaigns.
             </p>
           ) : (
@@ -418,7 +418,7 @@ export default function InstructionsPage() {
                   <span style={{ fontSize: "0.88rem", fontWeight: 300, color: "#fff" }}>
                     {s.email || s.domain}
                     {s.domain && !s.email && (
-                      <span className="eyebrow" style={{ marginLeft: "0.75rem", color: "rgba(255,255,255,0.3)" }}>
+                      <span className="eyebrow" style={{ marginLeft: "0.75rem", color: "rgba(255,255,255,0.52)" }}>
                         Domain
                       </span>
                     )}

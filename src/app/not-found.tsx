@@ -20,7 +20,7 @@ export default function NotFound() {
         className="mb-10"
         style={{
           fontSize: "0.92rem",
-          color: "rgba(255,255,255,0.4)",
+          color: "rgba(255,255,255,0.62)",
           fontWeight: 300,
         }}
       >

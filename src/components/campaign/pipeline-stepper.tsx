@@ -58,11 +58,11 @@ export function PipelineStepper({ status }: { status: CampaignStatus }) {
           const isPastOfFailed = isTerminal && i < failIdx
 
           let dotColor = "rgba(255,255,255,0.15)"
-          let labelColor = "rgba(255,255,255,0.2)"
+          let labelColor = "rgba(255,255,255,0.42)"
 
           if (isComplete || isPastOfFailed) {
             dotColor = "#2D500D"
-            labelColor = "rgba(255,255,255,0.45)"
+            labelColor = "rgba(255,255,255,0.7)"
           } else if (isActive) {
             dotColor = "#BE7B44"
             labelColor = "#BE7B44"
@@ -70,8 +70,8 @@ export function PipelineStepper({ status }: { status: CampaignStatus }) {
             dotColor = "#C30319"
             labelColor = "#C30319"
           } else if (isFailedStage && isCancelled) {
-            dotColor = "rgba(255,255,255,0.35)"
-            labelColor = "rgba(255,255,255,0.35)"
+            dotColor = "rgba(255,255,255,0.56)"
+            labelColor = "rgba(255,255,255,0.56)"
           } else if (isFutureOfFailed) {
             dotColor = "rgba(255,255,255,0.08)"
             labelColor = "rgba(255,255,255,0.12)"

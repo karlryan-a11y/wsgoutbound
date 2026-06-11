@@ -31,7 +31,7 @@ const TYPE_COLORS: Record<KnowledgeType, string> = {
   brand: "var(--wsg-camel)",
   case_study: "var(--wsg-blue)",
   email_sample: "var(--wsg-green)",
-  doc: "rgba(255,255,255,0.4)",
+  doc: "rgba(255,255,255,0.62)",
   note: "var(--wsg-butter)",
   transcript: "var(--wsg-blush)",
 }
@@ -198,7 +198,7 @@ export default function KnowledgePage() {
       <Link
         href="/"
         className="nav-link eyebrow mb-12 inline-block"
-        style={{ color: "rgba(255,255,255,0.35)" }}
+        style={{ color: "rgba(255,255,255,0.56)" }}
       >
         &larr; Back
       </Link>
@@ -219,7 +219,7 @@ export default function KnowledgePage() {
 
       <p
         className="mb-12"
-        style={{ color: "rgba(255,255,255,0.45)", fontWeight: 300, maxWidth: "52ch" }}
+        style={{ color: "rgba(255,255,255,0.7)", fontWeight: 300, maxWidth: "52ch" }}
       >
         Brand docs, winning emails, and case studies. Each entry is automatically embedded
         and referenced when generating search queries and email sequences.
@@ -234,7 +234,7 @@ export default function KnowledgePage() {
         >
           <div className="space-y-8">
             <div>
-              <label className="eyebrow mb-3 block" style={{ color: "rgba(255,255,255,0.5)" }}>
+              <label className="eyebrow mb-3 block" style={{ color: "rgba(255,255,255,0.68)" }}>
                 Title
               </label>
               <input
@@ -249,7 +249,7 @@ export default function KnowledgePage() {
             </div>
             <div className="grid grid-cols-2 gap-12">
               <div>
-                <label className="eyebrow mb-3 block" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <label className="eyebrow mb-3 block" style={{ color: "rgba(255,255,255,0.68)" }}>
                   Type
                 </label>
                 <select
@@ -265,7 +265,7 @@ export default function KnowledgePage() {
                 </select>
               </div>
               <div>
-                <label className="eyebrow mb-3 block" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <label className="eyebrow mb-3 block" style={{ color: "rgba(255,255,255,0.68)" }}>
                   Tags (comma-separated)
                 </label>
                 <input
@@ -279,7 +279,7 @@ export default function KnowledgePage() {
               </div>
             </div>
             <div>
-              <label className="eyebrow mb-3 block" style={{ color: "rgba(255,255,255,0.5)" }}>
+              <label className="eyebrow mb-3 block" style={{ color: "rgba(255,255,255,0.68)" }}>
                 Content
               </label>
               <textarea
@@ -304,13 +304,13 @@ export default function KnowledgePage() {
 
       {/* List */}
       {loading ? (
-        <p style={{ color: "rgba(255,255,255,0.35)", fontWeight: 300 }}>Loading…</p>
+        <p style={{ color: "rgba(255,255,255,0.56)", fontWeight: 300 }}>Loading…</p>
       ) : entries.length === 0 ? (
         <div
           className="wsg-surface"
           style={{ padding: "clamp(2.5rem, 6vw, 4rem)", textAlign: "center" }}
         >
-          <p style={{ color: "rgba(255,255,255,0.6)", fontWeight: 300, maxWidth: "44ch", margin: "0 auto" }}>
+          <p style={{ color: "rgba(255,255,255,0.74)", fontWeight: 300, maxWidth: "44ch", margin: "0 auto" }}>
             Your reference library is empty. Add brand docs, winning emails, and case studies.
             Each entry is automatically embedded and referenced when generating search queries
             and email sequences.
@@ -399,7 +399,7 @@ export default function KnowledgePage() {
                             >
                               <div className="mb-2 flex items-center gap-3">
                                 <TypeBadge type={entry.type} />
-                                <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.3)" }}>
+                                <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.52)" }}>
                                   {formatDate(entry.updated_at || entry.created_at)}
                                 </span>
                               </div>
@@ -412,7 +412,7 @@ export default function KnowledgePage() {
                                   style={{
                                     fontSize: "0.88rem",
                                     fontWeight: 300,
-                                    color: "rgba(255,255,255,0.45)",
+                                    color: "rgba(255,255,255,0.7)",
                                     lineHeight: 1.6,
                                   }}
                                 >
@@ -445,7 +445,7 @@ export default function KnowledgePage() {
                                 style={{
                                   fontSize: "0.92rem",
                                   fontWeight: 300,
-                                  color: "rgba(255,255,255,0.7)",
+                                  color: "rgba(255,255,255,0.82)",
                                   lineHeight: 1.7,
                                   whiteSpace: "pre-wrap",
                                 }}
@@ -459,7 +459,7 @@ export default function KnowledgePage() {
                                       key={tag}
                                       style={{
                                         fontSize: "0.7rem",
-                                        color: "rgba(255,255,255,0.5)",
+                                        color: "rgba(255,255,255,0.68)",
                                         border: "1px solid var(--line)",
                                         padding: "0.2rem 0.55rem",
                                       }}

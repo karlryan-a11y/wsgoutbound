@@ -19,7 +19,7 @@ const statusLabels: Record<CampaignStatus, string> = {
 }
 
 const statusAccent: Record<CampaignStatus, string> = {
-  draft: "rgba(255,255,255,0.3)",
+  draft: "rgba(255,255,255,0.52)",
   awaiting_sql_review: "#BE7B44",
   querying: "#7FB5CB",
   awaiting_volume: "#BE7B44",
@@ -28,7 +28,7 @@ const statusAccent: Record<CampaignStatus, string> = {
   pushing: "#7FB5CB",
   completed: "#2D500D",
   failed: "#C30319",
-  cancelled: "rgba(255,255,255,0.2)",
+  cancelled: "rgba(255,255,255,0.42)",
 }
 
 export default async function DashboardPage() {
@@ -55,7 +55,7 @@ export default async function DashboardPage() {
           className="mb-10"
           style={{
             fontSize: "1.05rem",
-            color: "rgba(255,255,255,0.45)",
+            color: "rgba(255,255,255,0.7)",
             fontWeight: 300,
             maxWidth: "52ch",
           }}
@@ -105,7 +105,7 @@ export default async function DashboardPage() {
                 <p
                   style={{
                     fontSize: "0.9rem",
-                    color: "rgba(255,255,255,0.4)",
+                    color: "rgba(255,255,255,0.62)",
                     fontWeight: 300,
                     lineHeight: 1.6,
                   }}
@@ -119,7 +119,7 @@ export default async function DashboardPage() {
       ) : (
         <div>
           <div className="mb-8 flex items-end justify-between" style={{ borderBottom: "1px solid var(--line)", paddingBottom: "1rem" }}>
-            <span className="eyebrow" style={{ color: "rgba(255,255,255,0.4)" }}>Recent Campaigns</span>
+            <span className="eyebrow" style={{ color: "rgba(255,255,255,0.62)" }}>Recent Campaigns</span>
           </div>
           <div>
             {(campaigns as Campaign[]).map((campaign, i) => (
@@ -160,7 +160,7 @@ export default async function DashboardPage() {
                         className="mt-1"
                         style={{
                           fontSize: "0.92rem",
-                          color: "rgba(255,255,255,0.45)",
+                          color: "rgba(255,255,255,0.7)",
                           fontWeight: 300,
                         }}
                       >
@@ -202,7 +202,7 @@ export default async function DashboardPage() {
                       <span
                         style={{
                           fontSize: "0.72rem",
-                          color: "rgba(255,255,255,0.25)",
+                          color: "rgba(255,255,255,0.46)",
                         }}
                       >
                         {new Date(campaign.created_at).toLocaleDateString("en-US", {

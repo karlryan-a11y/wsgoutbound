@@ -56,7 +56,7 @@ export function NLInput() {
           style={{
             padding: "1.1rem 2rem",
             background: value.trim() ? "#fff" : "rgba(255,255,255,0.06)",
-            color: value.trim() ? "var(--wsg-black)" : "rgba(255,255,255,0.3)",
+            color: value.trim() ? "var(--wsg-black)" : "rgba(255,255,255,0.52)",
             fontFamily: "var(--sans)",
             fontSize: "0.74rem",
             fontWeight: 500,
@@ -81,7 +81,7 @@ export function NLInput() {
               padding: "0.5rem 1rem",
               border: "1px solid var(--line)",
               background: "transparent",
-              color: "rgba(255,255,255,0.4)",
+              color: "rgba(255,255,255,0.62)",
               fontFamily: "var(--sans)",
               fontSize: "0.78rem",
               fontWeight: 300,
@@ -89,11 +89,11 @@ export function NLInput() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = "var(--wsg-camel)"
-              e.currentTarget.style.color = "rgba(255,255,255,0.7)"
+              e.currentTarget.style.color = "rgba(255,255,255,0.82)"
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = "var(--line)"
-              e.currentTarget.style.color = "rgba(255,255,255,0.4)"
+              e.currentTarget.style.color = "rgba(255,255,255,0.62)"
             }}
           >
             {ex}
@@ -108,7 +108,7 @@ export function NLInput() {
           style={{
             background: "none",
             border: "none",
-            color: "rgba(255,255,255,0.3)",
+            color: "rgba(255,255,255,0.52)",
             fontFamily: "var(--sans)",
             fontSize: "0.78rem",
             fontWeight: 300,

@@ -84,7 +84,7 @@ function SampleTable({
                   key={k}
                   style={{
                     padding: "0.75rem 1.25rem",
-                    color: "rgba(255,255,255,0.6)",
+                    color: "rgba(255,255,255,0.74)",
                     fontWeight: 300,
                   }}
                 >
@@ -146,7 +146,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
     return (
       <div className="flex items-center gap-4 py-16">
         <div className="wsg-spinner" />
-        <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 300 }}>
+        <span style={{ color: "rgba(255,255,255,0.7)", fontWeight: 300 }}>
           Generating query criteria...
         </span>
       </div>
@@ -200,7 +200,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
             {v.row_count?.toLocaleString() ?? "—"}
             <span
               className="eyebrow ml-2"
-              style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.4)" }}
+              style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.62)" }}
             >
               matches
             </span>
@@ -217,7 +217,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
               style={{
                 padding: "2rem",
                 borderRight: "1px solid var(--line)",
-                borderTop: "2px solid rgba(255,255,255,0.6)",
+                borderTop: "2px solid rgba(255,255,255,0.74)",
               }}
             >
               <div className="mb-4 flex items-center gap-2">
@@ -227,7 +227,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                   strokeWidth={2}
-                  style={{ color: "rgba(255,255,255,0.5)" }}
+                  style={{ color: "rgba(255,255,255,0.68)" }}
                 >
                   <path
                     strokeLinecap="round"
@@ -235,7 +235,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                <span className="eyebrow" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <span className="eyebrow" style={{ color: "rgba(255,255,255,0.68)" }}>
                   Including
                 </span>
               </div>
@@ -252,7 +252,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                   >
                     <span
                       className="mt-2.5 h-px w-3 shrink-0"
-                      style={{ background: "rgba(255,255,255,0.2)" }}
+                      style={{ background: "rgba(255,255,255,0.42)" }}
                     />
                     {item}
                   </li>
@@ -264,7 +264,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
             <div
               style={{
                 padding: "2rem",
-                borderTop: "2px solid rgba(255,255,255,0.2)",
+                borderTop: "2px solid rgba(255,255,255,0.42)",
               }}
             >
               <div className="mb-4 flex items-center gap-2">
@@ -274,7 +274,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                   strokeWidth={2}
-                  style={{ color: "rgba(255,255,255,0.3)" }}
+                  style={{ color: "rgba(255,255,255,0.52)" }}
                 >
                   <path
                     strokeLinecap="round"
@@ -282,7 +282,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                     d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
-                <span className="eyebrow" style={{ color: "rgba(255,255,255,0.35)" }}>
+                <span className="eyebrow" style={{ color: "rgba(255,255,255,0.56)" }}>
                   Excluding
                 </span>
               </div>
@@ -293,7 +293,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                     className="flex gap-3"
                     style={{
                       fontSize: "0.92rem",
-                      color: "rgba(255,255,255,0.5)",
+                      color: "rgba(255,255,255,0.68)",
                       fontWeight: 300,
                     }}
                   >
@@ -308,7 +308,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
             </div>
           </div>
         ) : (
-          <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.6)", fontWeight: 300, maxWidth: "48ch" }}>
+          <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.74)", fontWeight: 300, maxWidth: "48ch" }}>
             {v.reasoning}
           </p>
         )}
@@ -334,7 +334,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                 color:
                   activeTab === "included"
                     ? "#fff"
-                    : "rgba(255,255,255,0.35)",
+                    : "rgba(255,255,255,0.56)",
                 padding: "1rem 1.5rem",
                 borderBottom:
                   activeTab === "included"
@@ -361,11 +361,11 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
                 color:
                   activeTab === "excluded"
                     ? "#fff"
-                    : "rgba(255,255,255,0.35)",
+                    : "rgba(255,255,255,0.56)",
                 padding: "1rem 1.5rem",
                 borderBottom:
                   activeTab === "excluded"
-                    ? "2px solid rgba(255,255,255,0.5)"
+                    ? "2px solid rgba(255,255,255,0.68)"
                     : "2px solid transparent",
                 background: "transparent",
                 cursor: "pointer",
@@ -392,7 +392,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
               <p
                 style={{
                   fontSize: "0.85rem",
-                  color: "rgba(255,255,255,0.25)",
+                  color: "rgba(255,255,255,0.46)",
                   fontWeight: 300,
                 }}
               >
@@ -405,7 +405,7 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
 
       {/* ── Refinement + actions ──────────────────────────────────── */}
       <div style={{ borderTop: "1px solid var(--line)", paddingTop: "2.5rem" }}>
-        <span className="eyebrow mb-4 block" style={{ color: "rgba(255,255,255,0.4)" }}>
+        <span className="eyebrow mb-4 block" style={{ color: "rgba(255,255,255,0.62)" }}>
           Refinement
         </span>
         <textarea

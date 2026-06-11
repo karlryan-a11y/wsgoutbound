@@ -27,16 +27,16 @@ export function Header() {
         <nav className="hidden items-center md:flex"
           style={{ gap: "clamp(1.25rem, 2.6vw, 3rem)" }}
         >
-          <Link href="/" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/60 transition-colors duration-300 hover:!text-white">
+          <Link href="/" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/80 transition-colors duration-300 hover:!text-white">
             Campaigns
           </Link>
-          <Link href="/knowledge" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/60 transition-colors duration-300 hover:!text-white">
+          <Link href="/knowledge" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/80 transition-colors duration-300 hover:!text-white">
             Knowledge
           </Link>
-          <Link href="/instructions" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/60 transition-colors duration-300 hover:!text-white">
+          <Link href="/instructions" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/80 transition-colors duration-300 hover:!text-white">
             Rules
           </Link>
-          <Link href="/settings" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/60 transition-colors duration-300 hover:!text-white">
+          <Link href="/settings" className="nav-link eyebrow !text-[0.74rem] !tracking-[0.22em] !text-white/80 transition-colors duration-300 hover:!text-white">
             Settings
           </Link>
         </nav>

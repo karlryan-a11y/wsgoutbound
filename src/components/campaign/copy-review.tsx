@@ -60,7 +60,7 @@ export function CopyReview({ campaign }: { campaign: Campaign }) {
     return (
       <div className="flex items-center gap-4 py-16">
         <div className="wsg-spinner" />
-        <span style={{ color: "rgba(255,255,255,0.45)", fontWeight: 300 }}>
+        <span style={{ color: "rgba(255,255,255,0.7)", fontWeight: 300 }}>
           Generating copy...
         </span>
       </div>
@@ -104,7 +104,7 @@ export function CopyReview({ campaign }: { campaign: Campaign }) {
               </span>
               <span
                 className="eyebrow"
-                style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.62rem" }}
+                style={{ color: "rgba(255,255,255,0.56)", fontSize: "0.62rem" }}
               >
                 {step.delay_days === 0
                   ? "Send Immediately"
@@ -128,7 +128,7 @@ export function CopyReview({ campaign }: { campaign: Campaign }) {
                 fontSize: "0.92rem",
                 fontWeight: 300,
                 lineHeight: 1.8,
-                color: "rgba(255,255,255,0.6)",
+                color: "rgba(255,255,255,0.74)",
                 whiteSpace: "pre-wrap",
                 maxWidth: "56ch",
               }}

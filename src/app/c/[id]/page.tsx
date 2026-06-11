@@ -25,7 +25,7 @@ const statusLabels: Record<CampaignStatus, string> = {
 }
 
 const statusAccent: Record<CampaignStatus, string> = {
-  draft: "rgba(255,255,255,0.3)",
+  draft: "rgba(255,255,255,0.52)",
   awaiting_sql_review: "#BE7B44",
   querying: "#7FB5CB",
   awaiting_volume: "#BE7B44",
@@ -34,7 +34,7 @@ const statusAccent: Record<CampaignStatus, string> = {
   pushing: "#7FB5CB",
   completed: "#2D500D",
   failed: "#C30319",
-  cancelled: "rgba(255,255,255,0.2)",
+  cancelled: "rgba(255,255,255,0.42)",
 }
 
 export default async function CampaignDetailPage({
@@ -64,7 +64,7 @@ export default async function CampaignDetailPage({
       <Link
         href="/"
         className="nav-link eyebrow mb-12 inline-block"
-        style={{ color: "rgba(255,255,255,0.35)" }}
+        style={{ color: "rgba(255,255,255,0.56)" }}
       >
         &larr; Back to campaigns
       </Link>
@@ -78,7 +78,7 @@ export default async function CampaignDetailPage({
             className="mt-3"
             style={{
               fontSize: "1rem",
-              color: "rgba(255,255,255,0.45)",
+              color: "rgba(255,255,255,0.7)",
               fontWeight: 300,
               maxWidth: "48ch",
             }}
