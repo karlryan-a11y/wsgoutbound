@@ -49,14 +49,15 @@ export async function GET(
     .order("created_at", { ascending: false })
     .limit(50)
 
-  // If campaign failed, get the failure reason from debug_log
+  // If campaign failed, get the failure reason from debug_log.
+  // Covers any phase: pipeline_failed (SQL/BigQuery/copy) or enrichment_failed.
   let failureReason: string | null = null
   if (campaign.status === "failed") {
     const { data: failLog } = await db
       .from("debug_log")
       .select("response")
       .eq("campaign_id", id)
-      .eq("step", "enrichment_failed")
+      .in("step", ["pipeline_failed", "enrichment_failed"])
       .order("created_at", { ascending: false })
       .limit(1)
 

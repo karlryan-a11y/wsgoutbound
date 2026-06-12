@@ -41,8 +41,73 @@ async function updateCampaign(
     .eq("id", campaignId)
 }
 
+// Turn a raw pipeline error into a clear, user-facing reason.
+function friendlyPipelineError(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err)
+  const m = msg.toLowerCase()
+
+  // Expired / invalid Google credentials (BigQuery auth)
+  if (
+    m.includes("invalid_grant") ||
+    m.includes("reauth") ||
+    m.includes("expired or revoked") ||
+    m.includes("could not load the default credentials") ||
+    m.includes("google_application_credentials") ||
+    m.includes("invalid_rapt") ||
+    m.includes("invalid credential") ||
+    m.includes("unable to authenticate")
+  ) {
+    return "Contact search is unavailable — the BigQuery credential has expired and needs to be refreshed (GCP_SERVICE_ACCOUNT_JSON on Vercel)."
+  }
+
+  // BigQuery query / access errors
+  if (m.includes("bigquery") || m.includes("not found: table") || m.includes("unrecognized name") || m.includes("syntax error")) {
+    return `The contact search query failed in BigQuery: ${msg.slice(0, 200)}`
+  }
+
+  // Anthropic / model errors
+  if (m.includes("anthropic") || m.includes("rate_limit") || m.includes("overloaded")) {
+    return `The AI step failed: ${msg.slice(0, 200)}`
+  }
+
+  return msg.slice(0, 240) || "The campaign pipeline failed unexpectedly."
+}
+
 export const runCampaign = inngest.createFunction(
-  { id: "run-campaign", retries: 2, triggers: [{ event: "campaign/submitted" }] },
+  {
+    id: "run-campaign",
+    retries: 2,
+    triggers: [{ event: "campaign/submitted" }],
+    // Runs once after all retries are exhausted — so a failed SQL/BigQuery/copy
+    // step marks the campaign `failed` with a readable reason instead of
+    // leaving it frozen at "Building your search query… 0%".
+    onFailure: async ({ error, event }) => {
+      const original = (event as { data: { event?: { data?: { campaignId?: string } } } })
+        .data?.event
+      const campaignId = original?.data?.campaignId
+      if (!campaignId) return
+
+      const db = supabaseServer()
+      const reason = friendlyPipelineError(error)
+
+      try {
+        await db.from("debug_log").insert({
+          campaign_id: campaignId,
+          step: "pipeline_failed",
+          prompt: "Pipeline failed after retries",
+          response: JSON.stringify({ error: reason }),
+          model: "pipeline",
+        })
+      } catch {
+        // best-effort logging
+      }
+
+      await db
+        .from("campaigns")
+        .update({ status: "failed", updated_at: new Date().toISOString() })
+        .eq("id", campaignId)
+    },
+  },
   async ({ event, step }) => {
     const { campaignId } = event.data as { campaignId: string }
     const db = supabaseServer()
