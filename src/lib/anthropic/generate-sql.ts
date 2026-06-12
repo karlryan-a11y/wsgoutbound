@@ -46,6 +46,12 @@ export async function generateSql(
 
   const system = `You are a BigQuery SQL writer for Watson Style Group's outbound email campaigns.
 
+CRITICAL RULE — the apollo data is stored ENTIRELY LOWERCASE. Every string filter MUST normalize case or it will silently match ZERO rows:
+- Use LOWER(column) LIKE '%lowercase_value%' for contains matches.
+- Use LOWER(column) = 'lowercase_value' for equality (literal must be lowercase).
+- This applies to EVERY string column — country, state, city, company_name, job_title, industry, etc.
+- A capitalized literal like location_country = 'United States' is a BUG and returns nothing.
+
 CONTEXT — BigQuery schema:
 ${BQ_SCHEMA}
 
