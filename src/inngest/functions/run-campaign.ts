@@ -3,14 +3,20 @@ import { supabaseServer } from "@/lib/supabase/server"
 import { generateSql, refineSqlWithFeedback } from "@/lib/anthropic/generate-sql"
 import { generateMasterCopy, generatePersonalization } from "@/lib/anthropic/generate-copy"
 import { runQuery, runSampleWithTotal, stripTrailingLimit } from "@/lib/bigquery/client"
-import { enrichBatch, extractLeadForEnrichment, LeadMagicApiError } from "@/lib/leadmagic/client"
+import { enrichBatchWaterfall, getCreditBalance, LeadMagicApiError } from "@/lib/leadmagic/client"
 import { pushLeadsToInstantly } from "@/lib/instantly/client"
 import type { CampaignBrief, SqlVersion, Lead, LeadPersonalization } from "@/types"
 import type { InstantlyLead } from "@/lib/instantly/client"
 
-const ENRICH_BATCH_SIZE = 50 // leads per Inngest step (at 5 RPS ≈ 11 seconds)
+const ENRICH_BATCH_SIZE = 30 // leads per Inngest step (waterfall = up to 3 calls/lead)
 const PERSONALIZE_BATCH_SIZE = 10 // leads per Inngest step (Claude API calls)
 const INSTANTLY_PUSH_BATCH_SIZE = 500 // leads per Instantly push (max 1000)
+
+// ── LeadMagic credit guardrails ─────────────────────────────────────────
+// Worst case per lead: validate existing (0.25) + find work (1.0) + find
+// personal (1.0) ≈ 2.25. Cap a touch above that, with a hard absolute ceiling.
+const CREDIT_CAP_PER_LEAD = 2.5
+const ABSOLUTE_MAX_CREDITS = 1500
 
 // ── field extraction helpers (shared with leadmagic client) ──────────
 function str(v: unknown): string | null {
@@ -290,136 +296,141 @@ export const runCampaign = inngest.createFunction(
       return data ?? []
     })
 
-    // Process in batches of ENRICH_BATCH_SIZE (at 5 RPS, 50 leads ≈ 11s)
+    const findPersonal = brief.enrich_personal_emails === true
+
+    // ── Pre-flight: credit balance + the hard per-run cap ─────────────────
+    // Cap = min(worst-case waterfall cost, absolute ceiling, available balance).
+    // This is the guardrail that guarantees a run can't drain the account.
+    const budget = await step.run("leadmagic-preflight", async () => {
+      const balance = await getCreditBalance()
+      let cap = Math.min(
+        Math.ceil(allLeads.length * CREDIT_CAP_PER_LEAD),
+        ABSOLUTE_MAX_CREDITS
+      )
+      // balance === -1 means the balance check failed; don't block, just cap to ceiling
+      if (balance === 0) return { cap: 0, balance, blocked: true }
+      if (balance > 0) cap = Math.min(cap, balance)
+      return { cap, balance, blocked: false }
+    })
+
+    if (budget.blocked) {
+      await step.run("enrichment-no-credits", async () => {
+        await db.from("debug_log").insert({
+          campaign_id: campaignId,
+          step: "enrichment_failed",
+          prompt: "Pre-flight credit check",
+          response: JSON.stringify({ error: "Out of LeadMagic credits — top up at leadmagic.io/billing" }),
+          model: "leadmagic",
+        })
+        await updateCampaign(campaignId, { status: "failed", enriched_count: 0, valid_count: 0 })
+      })
+      return { status: "failed", campaignId, reason: "Out of LeadMagic credits" }
+    }
+
     let enrichedTotal = 0
     let validTotal = 0
     let creditsUsed = 0
+    const runCap = budget.cap
     const totalBatches = Math.ceil(allLeads.length / ENRICH_BATCH_SIZE)
 
     let enrichmentFailed = false
+    let cappedOut = false
 
     for (let batchIdx = 0; batchIdx < totalBatches; batchIdx++) {
+      // Stop if the credit cap is reached
+      if (creditsUsed >= runCap) {
+        cappedOut = true
+        break
+      }
+
       // Check for cancellation before each batch
-      const cancelled = await step.run(
-        `check-cancel-${batchIdx}`,
-        async () => {
-          const { data } = await db
-            .from("campaigns")
-            .select("status")
-            .eq("id", campaignId)
-            .single()
-          return data?.status === "cancelled"
-        }
-      )
+      const cancelled = await step.run(`check-cancel-${batchIdx}`, async () => {
+        const { data } = await db
+          .from("campaigns")
+          .select("status")
+          .eq("id", campaignId)
+          .single()
+        return data?.status === "cancelled"
+      })
       if (cancelled) {
         return { status: "cancelled", reason: "Cancelled by user during enrichment" }
       }
 
       const batchStart = batchIdx * ENRICH_BATCH_SIZE
       const batchLeads = allLeads.slice(batchStart, batchStart + ENRICH_BATCH_SIZE)
+      const remainingBudget = runCap - creditsUsed
 
-      const batchResult = await step.run(
-        `enrich-batch-${batchIdx}`,
-        async () => {
-          // Extract enrichment requests from lead source data
-          const requests = batchLeads.map((lead) => ({
-            leadId: lead.id as string,
-            request: extractLeadForEnrichment(
-              lead.source_data as Record<string, unknown>
-            ),
-          }))
+      const batchResult = await step.run(`enrich-batch-${batchIdx}`, async () => {
+        const items = batchLeads.map((lead) => ({
+          leadId: lead.id as string,
+          sourceData: lead.source_data as Record<string, unknown>,
+        }))
 
-          // Filter: only enrich leads we have name + company for
-          const enrichable = requests.filter((r) => r.request !== null)
+        try {
+          const { results, creditsUsed: spent, stoppedAtCap } =
+            await enrichBatchWaterfall(items, {
+              findPersonal,
+              creditBudget: remainingBudget,
+            })
 
-          if (enrichable.length === 0) {
-            return { enriched: 0, valid: 0, credits: 0, error: null as string | null }
-          }
+          let batchEnriched = 0
+          let batchValid = 0
 
-          try {
-            // Call LeadMagic with rate limiting
-            const results = await enrichBatch(
-              enrichable.map((e) => e.request!)
-            )
-
-            // Update each lead in Supabase (uses existing columns only)
-            let batchEnriched = 0
-            let batchValid = 0
-            let batchCredits = 0
-
-            for (let i = 0; i < enrichable.length; i++) {
-              const leadId = enrichable[i].leadId
-              const result = results[i]
-
-              // Update lead with found email (or leave null)
-              if (result.email) {
-                await db
-                  .from("leads")
-                  .update({
-                    email: result.email,
-                    email_status: result.email_status ?? "unknown",
-                  })
-                  .eq("id", leadId)
-
-                batchEnriched++
-                if (result.email_status === "valid") batchValid++
-              }
-
-              batchCredits += result.credits_used
-
-              // Log to debug_log for audit trail
-              await db.from("debug_log").insert({
-                campaign_id: campaignId,
-                step: "leadmagic_enrich",
-                prompt: JSON.stringify(enrichable[i].request),
-                response: JSON.stringify(result.raw),
-                model: "leadmagic/email-finder",
-                tokens_in: 0,
-                tokens_out: 0,
-              })
+          for (const { leadId, result } of results) {
+            if (result.email) {
+              await db
+                .from("leads")
+                .update({
+                  email: result.email,
+                  email_status: result.email_status ?? "unknown",
+                })
+                .eq("id", leadId)
+              batchEnriched++
+              if (result.email_status === "valid") batchValid++
             }
-
-            return {
-              enriched: batchEnriched,
-              valid: batchValid,
-              credits: batchCredits,
-              error: null as string | null,
-            }
-          } catch (err) {
-            // API-wide failure (credits, auth, rate limit, consecutive failures)
-            const reason =
-              err instanceof LeadMagicApiError
-                ? err.userFacingReason
-                : err instanceof Error
-                  ? err.message
-                  : "Unknown enrichment error"
-
-            // Log the failure
             await db.from("debug_log").insert({
               campaign_id: campaignId,
-              step: "enrichment_failed",
-              prompt: `Batch ${batchIdx} failed after enriching ${enrichedTotal} leads`,
-              response: JSON.stringify({
-                error: reason,
-                statusCode: err instanceof LeadMagicApiError ? err.statusCode : null,
-                raw: err instanceof Error ? err.message : String(err),
-              }),
-              model: "leadmagic/email-finder",
+              step: "leadmagic_enrich",
+              prompt: JSON.stringify({ leadId, source: result.source }),
+              response: JSON.stringify(result.raw),
+              model: `leadmagic/${result.source}`,
             })
-
-            // Set campaign to failed with reason
-            await updateCampaign(campaignId, {
-              status: "failed",
-              enriched_count: enrichedTotal,
-              valid_count: validTotal,
-            })
-
-            return { enriched: 0, valid: 0, credits: 0, error: reason }
           }
-        }
-      )
 
-      // If the batch returned an error, stop enrichment
+          return {
+            enriched: batchEnriched,
+            valid: batchValid,
+            credits: spent,
+            stoppedAtCap,
+            error: null as string | null,
+          }
+        } catch (err) {
+          const reason =
+            err instanceof LeadMagicApiError
+              ? err.userFacingReason
+              : err instanceof Error
+                ? err.message
+                : "Unknown enrichment error"
+
+          await db.from("debug_log").insert({
+            campaign_id: campaignId,
+            step: "enrichment_failed",
+            prompt: `Batch ${batchIdx} failed after enriching ${enrichedTotal} leads`,
+            response: JSON.stringify({
+              error: reason,
+              statusCode: err instanceof LeadMagicApiError ? err.statusCode : null,
+            }),
+            model: "leadmagic",
+          })
+          await updateCampaign(campaignId, {
+            status: "failed",
+            enriched_count: enrichedTotal,
+            valid_count: validTotal,
+          })
+          return { enriched: 0, valid: 0, credits: 0, stoppedAtCap: false, error: reason }
+        }
+      })
+
       if (batchResult.error) {
         enrichmentFailed = true
         break
@@ -429,43 +440,43 @@ export const runCampaign = inngest.createFunction(
       validTotal += batchResult.valid
       creditsUsed += batchResult.credits
 
-      // Update campaign progress after each batch
       await step.run(`update-enrich-progress-${batchIdx}`, async () => {
         await updateCampaign(campaignId, {
           enriched_count: enrichedTotal,
           valid_count: validTotal,
         })
       })
-    }
 
-    // If enrichment failed, stop the pipeline
-    if (enrichmentFailed) {
-      return {
-        status: "failed",
-        campaignId,
-        enriched: enrichedTotal,
-        valid: validTotal,
+      if (batchResult.stoppedAtCap) {
+        cappedOut = true
+        break
       }
     }
 
-    // Log enrichment summary
+    if (enrichmentFailed) {
+      return { status: "failed", campaignId, enriched: enrichedTotal, valid: validTotal }
+    }
+
+    // Log enrichment summary (and note if we stopped at the credit cap)
     await step.run("finalize-enrichment", async () => {
       await updateCampaign(campaignId, {
         enriched_count: enrichedTotal,
         valid_count: validTotal,
       })
-
       await db.from("debug_log").insert({
         campaign_id: campaignId,
-        step: "enrichment_complete",
-        prompt: `${allLeads.length} leads processed`,
+        step: cappedOut ? "enrichment_capped" : "enrichment_complete",
+        prompt: `${allLeads.length} leads processed${cappedOut ? " (stopped at credit cap)" : ""}`,
         response: JSON.stringify({
           total: allLeads.length,
           enriched: enrichedTotal,
           valid: validTotal,
-          credits_used: creditsUsed,
+          credits_used: Math.round(creditsUsed * 100) / 100,
+          credit_cap: runCap,
+          stopped_at_cap: cappedOut,
+          find_personal: findPersonal,
         }),
-        model: "leadmagic/email-finder",
+        model: "leadmagic",
       })
     })
 

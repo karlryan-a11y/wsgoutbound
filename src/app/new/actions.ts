@@ -38,6 +38,7 @@ export async function createCampaign(
       geographies,
       industries: industries.length > 0 ? industries : undefined,
       gender,
+      enrich_personal_emails: formData.get("enrich_personal_emails") === "on",
       value_prop: formData.get("value_prop") as string,
       cta: formData.get("cta") as string,
       tone: (formData.get("tone") as CampaignBrief["tone"]) || "consultative",

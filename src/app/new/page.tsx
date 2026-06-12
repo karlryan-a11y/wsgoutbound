@@ -259,6 +259,26 @@ function NewCampaignForm() {
                 <option value="male">Male</option>
               </select>
             </Field>
+            <label
+              className="flex cursor-pointer items-start gap-3"
+              style={{ padding: "0.5rem 0" }}
+            >
+              <input
+                type="checkbox"
+                name="enrich_personal_emails"
+                style={{ marginTop: "0.25rem", accentColor: "var(--wsg-camel)", width: "1rem", height: "1rem" }}
+              />
+              <span>
+                <span style={{ fontSize: "0.95rem", color: "var(--ink)", fontWeight: 400 }}>
+                  Also find personal emails
+                </span>
+                <span style={{ display: "block", fontSize: "0.82rem", color: "var(--ink-muted)", fontWeight: 300, marginTop: "0.15rem" }}>
+                  Off by default. When a work email can&apos;t be found, look up a
+                  personal email from LinkedIn (uses extra credits — good for estate
+                  managers and private clients).
+                </span>
+              </span>
+            </label>
           </div>
         </div>
 

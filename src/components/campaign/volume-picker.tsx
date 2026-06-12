@@ -166,16 +166,16 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
         style={{ padding: "1.4rem 1.6rem", borderLeft: "3px solid var(--wsg-camel)" }}
       >
         <div className="mb-3 flex items-center justify-between">
-          <span className="eyebrow !text-[0.6rem]">Estimated cost</span>
-          <span className="pill pill--camel">~{enrichCount} credits</span>
+          <span className="eyebrow !text-[0.6rem]">Cost (hard cap)</span>
+          <span className="pill pill--camel">
+            ≤ {Math.min(Math.ceil(enrichCount * 2.5), 1500)} credits
+          </span>
         </div>
         <p style={{ fontSize: "0.82rem", color: "var(--ink-soft)", fontWeight: 300, lineHeight: 1.6 }}>
-          1 LeadMagic credit per lookup. Not every lookup finds an email — typical
-          hit rate is 40–60%, so expect roughly{" "}
-          <strong style={{ fontWeight: 600, color: "var(--ink)" }}>
-            {Math.round(enrichCount * 0.5)} verified
-          </strong>{" "}
-          emails.
+          You&apos;ll usually spend far less — validating an email already in our
+          data is <strong style={{ fontWeight: 600, color: "var(--ink)" }}>0.25 credit</strong>,
+          finding a new one is 1, and <strong style={{ fontWeight: 600, color: "var(--ink)" }}>misses cost nothing</strong>.
+          The run stops automatically at the cap so it can never overspend.
         </p>
       </div>
 

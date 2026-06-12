@@ -54,6 +54,9 @@ export type CampaignBrief = {
   max_enrich: number
   validation_strictness: "valid_only" | "valid_and_risky"
 
+  // Enrichment
+  enrich_personal_emails?: boolean // opt-in: also find personal emails (extra credits)
+
   // Suppression
   exclude_domains?: string[]
   apply_default_suppression: boolean
