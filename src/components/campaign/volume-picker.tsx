@@ -9,10 +9,19 @@ import type { Campaign } from "@/types"
 export function VolumePicker({ campaign }: { campaign: Campaign }) {
   const router = useRouter()
   const maxCandidates = campaign.candidate_count ?? 1000
-  const [enrichCount, setEnrichCount] = useState(
-    Math.min(200, maxCandidates)
-  )
+  const maxAllowed = Math.min(maxCandidates, 1000)
+  const [enrichCount, setEnrichCount] = useState(Math.min(200, maxAllowed))
   const [loading, setLoading] = useState(false)
+
+  // Clamp to [1, maxAllowed] so tiny test batches (e.g. 5) are allowed
+  function setClamped(n: number) {
+    const v = Math.round(n)
+    setEnrichCount(Math.max(1, Math.min(maxAllowed, Number.isFinite(v) ? v : 1)))
+  }
+
+  const quickPicks = [5, 25, 100, maxAllowed].filter(
+    (n, i, arr) => n <= maxAllowed && arr.indexOf(n) === i
+  )
 
   async function handleSubmit() {
     setLoading(true)
@@ -71,35 +80,82 @@ export function VolumePicker({ campaign }: { campaign: Campaign }) {
           padding: "2.5rem 0",
         }}
       >
-        <div className="flex items-baseline gap-3 mb-8">
-          <span
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div className="flex items-baseline gap-3">
+            <span
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: "clamp(2.5rem, 4vw, 4rem)",
+                fontWeight: 300,
+                lineHeight: 1,
+                color: "var(--wsg-camel)",
+              }}
+            >
+              {enrichCount}
+            </span>
+            <span className="eyebrow" style={{ color: "rgba(0, 0, 0,0.4)" }}>
+              Contacts to verify
+            </span>
+          </div>
+          {/* Precise number input */}
+          <input
+            type="number"
+            min={1}
+            max={maxAllowed}
+            value={enrichCount}
+            onChange={(e) => setClamped(Number(e.target.value))}
             style={{
-              fontFamily: "var(--serif)",
-              fontSize: "clamp(2.5rem, 4vw, 4rem)",
-              fontWeight: 300,
-              lineHeight: 1,
-              color: "var(--wsg-camel)",
+              width: "6rem",
+              padding: "0.55rem 0.75rem",
+              textAlign: "right",
+              border: "1px solid var(--line-strong)",
+              background: "var(--paper)",
+              color: "var(--ink)",
+              fontFamily: "var(--sans)",
+              fontSize: "1rem",
+              outline: "none",
             }}
-          >
-            {enrichCount}
-          </span>
-          <span className="eyebrow" style={{ color: "rgba(0, 0, 0,0.4)" }}>
-            Contacts to verify
-          </span>
+            onFocus={(e) => (e.target.style.borderColor = "var(--wsg-camel)")}
+            onBlur={(e) => (e.target.style.borderColor = "var(--line-strong)")}
+          />
         </div>
+
+        {/* Quick picks — including a 5-lead test batch */}
+        <div className="mb-6 flex flex-wrap gap-2">
+          {quickPicks.map((n) => (
+            <button
+              key={n}
+              onClick={() => setClamped(n)}
+              className="transition-all duration-200"
+              style={{
+                padding: "0.4rem 0.9rem",
+                border: `1px solid ${enrichCount === n ? "var(--wsg-camel)" : "var(--line)"}`,
+                background: enrichCount === n ? "var(--wsg-blush)" : "transparent",
+                color: enrichCount === n ? "#a23a4d" : "var(--ink-muted)",
+                fontFamily: "var(--sans)",
+                fontSize: "0.74rem",
+                fontWeight: 500,
+                cursor: "pointer",
+              }}
+            >
+              {n === 5 ? "Test 5" : n === maxAllowed ? `All ${n.toLocaleString()}` : n.toLocaleString()}
+            </button>
+          ))}
+        </div>
+
         <Slider
           value={[enrichCount]}
-          onValueChange={(v) => setEnrichCount(Array.isArray(v) ? v[0] : v)}
-          min={10}
-          max={Math.min(maxCandidates, 1000)}
-          step={10}
+          onValueChange={(v) => setClamped(Array.isArray(v) ? v[0] : v)}
+          min={1}
+          max={maxAllowed}
+          step={1}
         />
         <div className="mt-3 flex justify-between">
           <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.42)" }}>
-            10
+            1
           </span>
           <span style={{ fontSize: "0.72rem", color: "rgba(0, 0, 0,0.42)" }}>
-            {Math.min(maxCandidates, 1000).toLocaleString()}
+            {maxAllowed.toLocaleString()}
           </span>
         </div>
       </div>
