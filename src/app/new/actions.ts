@@ -27,12 +27,17 @@ export async function createCampaign(
       .map((t) => t.trim())
       .filter(Boolean)
 
+    const genderRaw = (formData.get("gender") as string) || "any"
+    const gender =
+      genderRaw === "female" || genderRaw === "male" ? genderRaw : "any"
+
     const brief: CampaignBrief = {
       persona,
       titles_include: titlesInclude,
       titles_exclude: titlesExclude.length > 0 ? titlesExclude : undefined,
       geographies,
       industries: industries.length > 0 ? industries : undefined,
+      gender,
       value_prop: formData.get("value_prop") as string,
       cta: formData.get("cta") as string,
       tone: (formData.get("tone") as CampaignBrief["tone"]) || "consultative",

@@ -8,7 +8,7 @@ import type { Campaign } from "@/types"
 /* ── data table ────────────────────────────────────────────────────── */
 function SampleTable({
   rows,
-  maxRows = 10,
+  maxRows = 200,
 }: {
   rows: Record<string, unknown>[]
   maxRows?: number
@@ -45,7 +45,13 @@ function SampleTable({
   }
 
   return (
-    <div className="overflow-x-auto" style={{ border: "1px solid var(--line)" }}>
+    <div
+      style={{
+        border: "1px solid var(--line)",
+        maxHeight: "520px",
+        overflow: "auto",
+      }}
+    >
       <table className="w-full" style={{ fontSize: "0.85rem" }}>
         <thead>
           <tr style={{ borderBottom: "1px solid var(--line)" }}>
@@ -56,7 +62,10 @@ function SampleTable({
                 style={{
                   padding: "0.9rem 1.25rem",
                   fontSize: "0.62rem",
-                  background: "var(--surface-raised)",
+                  background: "var(--blush-faint)",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 1,
                 }}
               >
                 {fmt(k)}
@@ -379,6 +388,19 @@ export function SqlReview({ campaign }: { campaign: Campaign }) {
               )}
             </button>
           </div>
+
+          {activeTab === "included" && (
+            <p
+              className="mb-3"
+              style={{ fontSize: "0.82rem", color: "var(--ink-muted)", fontWeight: 300 }}
+            >
+              <strong style={{ color: "var(--wsg-camel)", fontWeight: 600 }}>
+                {v.row_count?.toLocaleString() ?? 0}
+              </strong>{" "}
+              total contacts match in BigQuery — previewing the first{" "}
+              {(v.sample?.length ?? 0).toLocaleString()}. Scroll the table to browse them.
+            </p>
+          )}
 
           {activeTab === "included" ? (
             <SampleTable rows={v.sample ?? []} />

@@ -38,6 +38,7 @@ export type CampaignBrief = {
   geographies: string[]
   industries?: string[]
   company_size?: { min?: number; max?: number }
+  gender?: "any" | "female" | "male"
 
   // Messaging
   value_prop: string

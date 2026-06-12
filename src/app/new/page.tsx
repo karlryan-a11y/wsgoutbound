@@ -252,6 +252,13 @@ function NewCampaignForm() {
                 }
               />
             </Field>
+            <Field label="Gender (optional)">
+              <select name="gender" defaultValue="any" style={selectStyle}>
+                <option value="any">Any</option>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+              </select>
+            </Field>
           </div>
         </div>
 

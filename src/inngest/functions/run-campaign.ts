@@ -2,7 +2,7 @@ import { inngest } from "@/lib/inngest/client"
 import { supabaseServer } from "@/lib/supabase/server"
 import { generateSql, refineSqlWithFeedback } from "@/lib/anthropic/generate-sql"
 import { generateMasterCopy, generatePersonalization } from "@/lib/anthropic/generate-copy"
-import { runQuery } from "@/lib/bigquery/client"
+import { runQuery, runSampleWithTotal, stripTrailingLimit } from "@/lib/bigquery/client"
 import { enrichBatch, extractLeadForEnrichment, LeadMagicApiError } from "@/lib/leadmagic/client"
 import { pushLeadsToInstantly } from "@/lib/instantly/client"
 import type { CampaignBrief, SqlVersion, Lead, LeadPersonalization } from "@/types"
@@ -138,9 +138,9 @@ export const runCampaign = inngest.createFunction(
         return await generateSql(brief, sqlVersions)
       })
 
-      // Run query to get sample + count
+      // Run query to get a scrollable sample + the TRUE total matching count
       const queryResult = await step.run("run-bq-sample", async () => {
-        return await runQuery(sqlResult.sql, { limit: 25 })
+        return await runSampleWithTotal(sqlResult.sql, 200)
       })
 
       // Run excluded sample query (best-effort)
@@ -157,7 +157,7 @@ export const runCampaign = inngest.createFunction(
       const newVersion: SqlVersion = {
         sql: sqlResult.sql,
         reasoning: sqlResult.reasoning,
-        row_count: queryResult.totalRows,
+        row_count: queryResult.total,
         sample: queryResult.rows,
         excluded_sample: excludedResult.rows,
         excluded_count: excludedResult.totalRows,
@@ -170,7 +170,7 @@ export const runCampaign = inngest.createFunction(
         await updateCampaign(campaignId, {
           status: "awaiting_sql_review",
           sql_versions: sqlVersions,
-          candidate_count: queryResult.totalRows,
+          candidate_count: queryResult.total,
         })
       })
 
@@ -198,7 +198,7 @@ export const runCampaign = inngest.createFunction(
         })
 
         const refinedQueryResult = await step.run("run-refined-bq", async () => {
-          return await runQuery(refined.sql, { limit: 25 })
+          return await runSampleWithTotal(refined.sql, 200)
         })
 
         const refinedExcluded = await step.run("run-refined-excluded", async () => {
@@ -214,7 +214,7 @@ export const runCampaign = inngest.createFunction(
           sql: refined.sql,
           reasoning: refined.reasoning,
           feedback: review.data.feedback as string,
-          row_count: refinedQueryResult.totalRows,
+          row_count: refinedQueryResult.total,
           sample: refinedQueryResult.rows,
           excluded_sample: refinedExcluded.rows,
           excluded_count: refinedExcluded.totalRows,
@@ -245,8 +245,9 @@ export const runCampaign = inngest.createFunction(
 
     const enrichCount = volumeEvent.data.enrichCount as number
 
-    // Run full query and store leads
-    const approvedSql = sqlVersions[sqlVersions.length - 1].sql
+    // Run full query and store leads (strip any generator LIMIT so the
+    // user's chosen enrich volume is what actually controls row count)
+    const approvedSql = stripTrailingLimit(sqlVersions[sqlVersions.length - 1].sql)
     const fullResults = await step.run("run-full-query", async () => {
       return await runQuery(approvedSql, { limit: enrichCount })
     })

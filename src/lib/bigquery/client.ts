@@ -71,6 +71,12 @@ export type BQQueryResult = {
   totalRows: number
 }
 
+// Remove a trailing `LIMIT n` (with optional semicolon) so the pipeline can
+// control row counts itself — true-total counts, sample sizes, enrich volume.
+export function stripTrailingLimit(sql: string): string {
+  return sql.replace(/\s+limit\s+\d+\s*;?\s*$/i, "").trim()
+}
+
 export async function runQuery(
   sql: string,
   options?: { limit?: number }
@@ -90,4 +96,33 @@ export async function runQuery(
     rows: rows as Record<string, unknown>[],
     totalRows: rows.length,
   }
+}
+
+// Run a query and return BOTH a preview sample AND the TRUE total matching
+// count (not capped). COUNT(*) OVER() is evaluated over the full result set
+// before LIMIT, so one scan gives us the real audience size + a sample to
+// scroll. `total` is the real number of matching contacts in BigQuery.
+export async function runSampleWithTotal(
+  sql: string,
+  sampleSize = 200
+): Promise<{ rows: Record<string, unknown>[]; total: number }> {
+  const client = getBigQueryClient()
+  const base = stripTrailingLimit(sql)
+  const wrapped = `SELECT *, COUNT(*) OVER() AS _total_count FROM (\n${base}\n) LIMIT ${sampleSize}`
+
+  const [rows] = await client.query({
+    query: wrapped,
+    location: process.env.GCP_BIGQUERY_LOCATION || "US",
+  })
+
+  const typed = rows as Record<string, unknown>[]
+  const total = typed.length > 0 ? Number(typed[0]._total_count) || 0 : 0
+  // Strip the helper column from each sample row
+  const cleaned = typed.map((r) => {
+    const copy = { ...r }
+    delete copy._total_count
+    return copy
+  })
+
+  return { rows: cleaned, total }
 }

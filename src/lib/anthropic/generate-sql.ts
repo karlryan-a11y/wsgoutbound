@@ -80,10 +80,12 @@ Output JSON only with this structure:
 The criteria arrays must describe every WHERE clause in plain, non-technical language that a non-SQL person can understand.
 The excluded_sql should show interesting near-misses — records the user might want to include if they adjusted their criteria.
 
-Use standard BigQuery SQL. Always include LIMIT (default 1000 unless user specifies).
-Prefer the linkedin_us table when the brief mentions industry or company size.
+Use standard BigQuery SQL. Do NOT add a LIMIT clause to "sql" — the system controls row limits and counts the true total itself. (The "excluded_sql" should still use LIMIT 10.)
+Prefer the linkedin_us table when the brief mentions industry, company size, or gender.
 Prefer the people table when the brief focuses on title/seniority filtering.
-Always filter for records with email IS NOT NULL when the goal is outbound.`
+Always filter for records with a non-empty email column when the goal is outbound (linkedin_us: emails IS NOT NULL AND emails != ''; people: person_email IS NOT NULL AND person_email != '').
+
+GENDER: the brief may include a "gender" field. If it is "female" or "male", add a filter LOWER(gender) = '<value>' — this column ONLY exists on linkedin_us, so use that table when a gender filter is requested. If gender is "any", null, or absent, do NOT filter on gender.`
 
   const response = await client.messages.create({
     model: DEFAULT_MODEL,
