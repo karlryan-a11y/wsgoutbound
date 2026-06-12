@@ -80,13 +80,13 @@ export const BQ_SCHEMA = `
 -- USAGE NOTES:
 -- 0. ⚠️ CRITICAL — ALL string values in BOTH tables are stored LOWERCASE
 --    (company_name='deloitte', location_country='united states', job_title='principal at deloitte consulting', etc.).
---    NEVER use case-sensitive equality against a capitalized literal — `location_country = 'United States'`
+--    NEVER use case-sensitive equality against a capitalized literal — location_country = 'United States'
 --    matches ZERO rows. ALWAYS normalize case on string filters:
---      • Equality:  LOWER(location_country) = 'united states'   (lowercase literal)
---      • Contains:  LOWER(company_name) LIKE '%deloitte%'
+--      Equality:  LOWER(location_country) = 'united states'   (lowercase literal)
+--      Contains:  LOWER(company_name) LIKE '%deloitte%'
 --    This applies to every string column: location/country/state/city, company_name, job_title, industry, etc.
--- 1. linkedin_us has the cleanest schema and richest company data — prefer it for campaigns targeting specific industries/company sizes. Email column is `emails` (populated for a meaningful subset).
--- 2. people table has more rows; company data is name only (`sanitized_organization_name_unanalyzed`). Email column is `person_email`. Best for title/function/seniority filtering.
+-- 1. linkedin_us has the cleanest schema and richest company data — prefer it for campaigns targeting specific industries/company sizes. Email column is 'emails' (populated for a meaningful subset).
+-- 2. people table has more rows; company data is name only ('sanitized_organization_name_unanalyzed'). Email column is 'person_email'. Best for title/function/seniority filtering.
 -- 3. Always use WHERE filters on indexed columns — Karl pays the BQ bill
 -- 4. Always include LIMIT (default 1000)
 -- 5. For email campaigns, prefer records where the email column is not null and != ''
