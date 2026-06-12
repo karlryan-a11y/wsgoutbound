@@ -2,12 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { supabaseServer } from "@/lib/supabase/server"
 import type { Campaign } from "@/types"
-import { SqlReview } from "@/components/campaign/sql-review"
-import { VolumePicker } from "@/components/campaign/volume-picker"
-import { CopyReview } from "@/components/campaign/copy-review"
-import { PushStatus } from "@/components/campaign/push-status"
-import { LiveProgress } from "@/components/campaign/live-progress"
-import { PipelineStepper } from "@/components/campaign/pipeline-stepper"
+import { CampaignWorkspace } from "@/components/campaign/campaign-workspace"
 import { StatusPill } from "@/components/ui/status-pill"
 
 export const dynamic = "force-dynamic"
@@ -72,27 +67,8 @@ export default async function CampaignDetailPage({
         </div>
       </div>
 
-      {/* Pipeline stepper */}
-      <PipelineStepper status={c.status} />
-
-      {/* Divider */}
-      <hr className="rule-camel mb-12" />
-
-      {/* Active review stages */}
-      {c.status === "awaiting_sql_review" && <SqlReview campaign={c} />}
-      {c.status === "awaiting_volume" && <VolumePicker campaign={c} />}
-      {c.status === "awaiting_copy_review" && <CopyReview campaign={c} />}
-      {c.status === "completed" && <PushStatus campaign={c} />}
-
-      {/* Processing states + error/cancelled — live progress polling */}
-      {(c.status === "draft" ||
-        c.status === "querying" ||
-        c.status === "enriching" ||
-        c.status === "pushing" ||
-        c.status === "failed" ||
-        c.status === "cancelled") && (
-        <LiveProgress campaignId={c.id} />
-      )}
+      {/* Clickable stepper + per-stage views (live action or read-only summary) */}
+      <CampaignWorkspace campaign={c} />
     </div>
   )
 }

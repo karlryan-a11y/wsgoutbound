@@ -2,7 +2,7 @@
 
 import type { CampaignStatus } from "@/types"
 
-const STAGES = [
+export const STAGES = [
   { key: "ask", label: "Ask" },
   { key: "query", label: "Query" },
   { key: "review", label: "Review" },
@@ -11,9 +11,9 @@ const STAGES = [
   { key: "push", label: "Push" },
 ] as const
 
-type Stage = (typeof STAGES)[number]["key"]
+export type StageKey = (typeof STAGES)[number]["key"]
 
-function statusToStageIndex(status: CampaignStatus): number {
+export function statusToStageIndex(status: CampaignStatus): number {
   switch (status) {
     case "draft":
     case "querying":
@@ -40,12 +40,29 @@ function failedStageIndex(status: CampaignStatus): number {
   return 3
 }
 
-export function PipelineStepper({ status }: { status: CampaignStatus }) {
+// The furthest stage index the campaign has reached (so we know what's clickable)
+export function reachableUpTo(status: CampaignStatus): number {
+  const failIdx = failedStageIndex(status)
+  if (failIdx >= 0) return failIdx
+  const active = statusToStageIndex(status)
+  return active < 0 ? 0 : Math.min(active, STAGES.length - 1)
+}
+
+export function PipelineStepper({
+  status,
+  selectedKey,
+  onSelect,
+}: {
+  status: CampaignStatus
+  selectedKey?: StageKey
+  onSelect?: (key: StageKey) => void
+}) {
   const activeIdx = statusToStageIndex(status)
   const failIdx = failedStageIndex(status)
   const isFailed = status === "failed"
   const isCancelled = status === "cancelled"
   const isTerminal = isFailed || isCancelled
+  const maxReachable = reachableUpTo(status)
 
   return (
     <div className="mb-12" style={{ paddingTop: "0.5rem" }}>
@@ -56,6 +73,9 @@ export function PipelineStepper({ status }: { status: CampaignStatus }) {
           const isFailedStage = isTerminal && failIdx === i
           const isFutureOfFailed = isTerminal && i > failIdx
           const isPastOfFailed = isTerminal && i < failIdx
+
+          const isReachable = i <= maxReachable
+          const isSelected = selectedKey === stage.key
 
           let dotColor = "rgba(0, 0, 0,0.15)"
           let labelColor = "rgba(0, 0, 0,0.2)"
@@ -77,9 +97,27 @@ export function PipelineStepper({ status }: { status: CampaignStatus }) {
             labelColor = "rgba(0, 0, 0,0.12)"
           }
 
+          const clickable = isReachable && !!onSelect
+
           return (
-            <div key={stage.key} className="flex items-center" style={{ flex: i < STAGES.length - 1 ? 1 : "none" }}>
-              <div className="flex flex-col items-center" style={{ minWidth: "48px" }}>
+            <div
+              key={stage.key}
+              className="flex items-center"
+              style={{ flex: i < STAGES.length - 1 ? 1 : "none" }}
+            >
+              <button
+                type="button"
+                onClick={clickable ? () => onSelect?.(stage.key) : undefined}
+                disabled={!clickable}
+                className="flex flex-col items-center"
+                style={{
+                  minWidth: "48px",
+                  background: "none",
+                  border: "none",
+                  padding: "0.25rem 0.25rem 0",
+                  cursor: clickable ? "pointer" : "default",
+                }}
+              >
                 <div
                   style={{
                     width: isComplete || isPastOfFailed ? "10px" : isActive || isFailedStage ? "12px" : "8px",
@@ -98,23 +136,27 @@ export function PipelineStepper({ status }: { status: CampaignStatus }) {
                   style={{
                     fontFamily: "var(--sans)",
                     fontSize: "0.62rem",
-                    fontWeight: isActive || isFailedStage ? 500 : 400,
+                    fontWeight: isActive || isFailedStage || isSelected ? 600 : 400,
                     letterSpacing: "0.18em",
                     textTransform: "uppercase",
-                    color: labelColor,
+                    color: isSelected ? "var(--ink)" : labelColor,
                     marginTop: "0.5rem",
-                    transition: "color 0.5s ease",
+                    paddingBottom: "3px",
+                    borderBottom: isSelected
+                      ? "2px solid var(--wsg-camel)"
+                      : "2px solid transparent",
+                    transition: "color 0.4s ease",
                   }}
                 >
                   {stage.label}
                 </span>
-              </div>
+              </button>
               {i < STAGES.length - 1 && (
                 <div
                   style={{
                     flex: 1,
                     height: "1px",
-                    marginBottom: "1.25rem",
+                    marginBottom: "1.5rem",
                     background:
                       isComplete || isPastOfFailed
                         ? "#2D500D"
