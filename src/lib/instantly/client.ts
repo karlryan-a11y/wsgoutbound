@@ -1,10 +1,11 @@
 // Instantly.ai v2 API client
 // Docs: https://developer.instantly.ai
-// Bulk-add: POST /api/v2/leads/bulk-add (up to 1000 leads per request)
+// Leads are added one-per-request via POST /api/v2/leads with a `campaign`
+// field. (There is NO /leads/bulk-add route in v2 — it 404s.)
 
 const BASE_URL =
   process.env.INSTANTLY_BASE_URL || "https://api.instantly.ai/api/v2"
-const BULK_ADD_LIMIT = 1000
+const PUSH_CONCURRENCY = 5 // parallel lead creates
 
 // ── types ──────────────────────────────────────────────────────────────
 
@@ -18,22 +19,6 @@ export type InstantlyLead = {
   website?: string | null
   personalization?: string | null
   custom_variables?: Record<string, string | number | boolean | null>
-}
-
-export type BulkAddRequest = {
-  campaign_id: string
-  leads: InstantlyLead[]
-  skip_if_in_workspace?: boolean
-  skip_if_in_campaign?: boolean
-}
-
-export type BulkAddResponse = {
-  upload_id?: string
-  total?: number
-  valid?: number
-  skipped?: number
-  failed?: number
-  [key: string]: unknown
 }
 
 // ── core fetch ─────────────────────────────────────────────────────────
@@ -65,38 +50,53 @@ async function instantlyFetch<T = unknown>(
 
 // ── bulk-add leads ────────────────────────────────────────────────────
 
+/** Map our lead shape to the v2 POST /leads body (job_title → custom var). */
+function toV2LeadBody(campaignId: string, lead: InstantlyLead) {
+  const custom_variables: Record<string, string | number | boolean | null> = {
+    ...(lead.custom_variables ?? {}),
+  }
+  if (lead.job_title) custom_variables.job_title = lead.job_title
+  return {
+    campaign: campaignId,
+    email: lead.email,
+    first_name: lead.first_name ?? undefined,
+    last_name: lead.last_name ?? undefined,
+    company_name: lead.company_name ?? undefined,
+    phone: lead.phone ?? undefined,
+    website: lead.website ?? undefined,
+    custom_variables,
+  }
+}
+
 /**
- * Push leads to an Instantly campaign via v2 bulk-add.
- * Automatically chunks into batches of 1000.
- * Returns aggregated results.
+ * Push leads to an Instantly campaign. v2 has no bulk endpoint, so we create
+ * leads individually with bounded concurrency. Per-lead failures are counted,
+ * not fatal, so one bad row can't sink the whole push.
  */
 export async function pushLeadsToInstantly(
   campaignId: string,
   leads: InstantlyLead[]
-): Promise<{ batches: BulkAddResponse[]; totalPushed: number }> {
-  const results: BulkAddResponse[] = []
+): Promise<{ totalPushed: number; failed: number; failures: string[] }> {
   let totalPushed = 0
+  const failures: string[] = []
 
-  for (let i = 0; i < leads.length; i += BULK_ADD_LIMIT) {
-    const batch = leads.slice(i, i + BULK_ADD_LIMIT)
-
-    const body: BulkAddRequest = {
-      campaign_id: campaignId,
-      leads: batch,
-      skip_if_in_workspace: true,
-      skip_if_in_campaign: true,
-    }
-
-    const res = await instantlyFetch<BulkAddResponse>("/leads/bulk-add", {
-      method: "POST",
-      body: JSON.stringify(body),
+  for (let i = 0; i < leads.length; i += PUSH_CONCURRENCY) {
+    const chunk = leads.slice(i, i + PUSH_CONCURRENCY)
+    const settled = await Promise.allSettled(
+      chunk.map((lead) =>
+        instantlyFetch("/leads", {
+          method: "POST",
+          body: JSON.stringify(toV2LeadBody(campaignId, lead)),
+        })
+      )
+    )
+    settled.forEach((s, j) => {
+      if (s.status === "fulfilled") totalPushed++
+      else failures.push(chunk[j].email)
     })
-
-    results.push(res)
-    totalPushed += batch.length
   }
 
-  return { batches: results, totalPushed }
+  return { totalPushed, failed: failures.length, failures }
 }
 
 // ── list campaigns ────────────────────────────────────────────────────

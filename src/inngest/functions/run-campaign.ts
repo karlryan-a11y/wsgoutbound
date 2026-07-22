@@ -686,7 +686,7 @@ export const runCampaign = inngest.createFunction(
                 .in("id", chunk)
             }
 
-            return { pushed: batchLeads.length, result }
+            return { pushed: result.totalPushed, result }
           }
         )
 
