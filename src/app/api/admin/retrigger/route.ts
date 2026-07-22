@@ -5,7 +5,7 @@ import { supabaseServer } from "@/lib/supabase/server"
 export const dynamic = "force-dynamic"
 
 export async function POST(req: Request) {
-  const { campaignId, event } = await req.json()
+  const { campaignId, event, data } = await req.json()
 
   if (!campaignId) {
     return NextResponse.json({ error: "campaignId required" }, { status: 400 })
@@ -25,10 +25,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Campaign not found" }, { status: 404 })
   }
 
-  // Send the event
+  // Send the event (merge any extra data, e.g. review action/feedback/volume)
   await inngest.send({
     name: eventName,
-    data: { campaignId },
+    data: { campaignId, ...(data || {}) },
   })
 
   return NextResponse.json({
